@@ -3286,7 +3286,7 @@ natural-compare@^1.4.0:
 
 next-auth@^4.24.11:
   version "4.24.11"
-  resolved "https://registry.npmjs.org/next-auth/-/next-auth-4.24.11.tgz"
+  resolved "https://registry.yarnpkg.com/next-auth/-/next-auth-4.24.11.tgz#16eeb76d37fbc8fe887561b454f8167f490c381f"
   integrity sha512-pCFXzIDQX7xmHFs4KVH4luCjaCbuPRtZ9oBUjUhOk84mZ9WVPf94n87TxYI4rSRf9HmfHEF8Yep3JrYDVOo3Cw==
   dependencies:
     "@babel/runtime" "^7.20.13"

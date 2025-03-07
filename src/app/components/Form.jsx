@@ -17,7 +17,6 @@ function Form() {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const storage = getStorage(app);
   const db = getFirestore(app);
   const postId = Date.now().toString();
 
@@ -28,40 +27,7 @@ function Form() {
   };
 
   const uploadFile = () => {
-    const storageRef = ref(storage, "pinterest/" + file.name);
-    uploadBytes(storageRef, file)
-      .then(() => {
-        console.log("File Uploaded");
-        return getDownloadURL(storageRef);
-      })
-      .then(async (url) => {
-        console.log("Download URL:", url);  
-        const postData = {
-          title,
-          desc,
-          link,
-          image: url,
-          userName: session?.user?.name,
-          email: session?.user?.email,
-          userImage: session?.user?.image,
-          id: postId,
-        };
-
-        await setDoc(doc(db, "pinterest-post", postId), postData)
-          .then(() => {
-            console.log("Saved");
-            setLoading(false);
-            router.push("/" + session.user.email);
-          })
-          .catch((error) => {
-            console.error("Error saving post:", error);
-            setLoading(false);
-          });
-      })
-      .catch((error) => {
-        console.error("Upload error:", error);
-        setLoading(false);
-      });
+    
   };
 
   return (

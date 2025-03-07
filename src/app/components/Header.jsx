@@ -31,12 +31,17 @@ function Header() {
     }
   };
 
+  // Function to handle "Create" button click
+  const handleCreateClick = () => {
+    if (session?.user) {
+      router.push("/pin-builder");
+    } else {
+      signIn(); // Redirect to login
+    }
+  };
+
   return (
-    <AppBar 
-      position="static" 
-      color="default" 
-      sx={{ padding: "10px", boxShadow: "none" }}
-    >
+    <AppBar position="static" color="default" sx={{ padding: "10px", boxShadow: "none" }}>
       <Toolbar className="flex justify-between">
         {/* Logo */}
         <IconButton edge="start" color="inherit" className="rounded-full overflow-hidden">
@@ -48,9 +53,9 @@ function Header() {
           <button className="rounded-full border border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-black hover:text-white text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-32">
             Home
           </button>
-          <button 
+          <button
             className="rounded-full border border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-black hover:text-white text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-32"
-            onClick={() => router.push('/pin-builder')}
+            onClick={handleCreateClick} // Use separate function
           >
             Create
           </button>
@@ -71,7 +76,7 @@ function Header() {
         </IconButton>
 
         {/* User Profile / Login */}
-        {session?.user? (
+        {session?.user ? (
           <Avatar
             src={session.user.image || "/default-avatar.png"}
             alt="user-avatar"

@@ -31,31 +31,29 @@ function Header() {
     }
   };
 
-  // Function to handle "Create" button click
-  const handleCreateClick = () => {
-    if (session?.user) {
-      router.push("/pin-builder");
-    } else {
-      signIn(); // Redirect to login
-    }
-  };
+  // Redirect functions
+  const redirectToHome = () => router.push("/");
+  const handleCreateClick = () => (session?.user ? router.push("/pin-builder") : signIn());
 
   return (
     <AppBar position="static" color="default" sx={{ padding: "10px", boxShadow: "none" }}>
       <Toolbar className="flex justify-between">
-        {/* Logo */}
-        <IconButton edge="start" color="inherit" className="rounded-full overflow-hidden">
+        {/* Logo - Click to go home */}
+        <IconButton edge="start" color="inherit" className="rounded-full overflow-hidden" onClick={redirectToHome}>
           <Image src="/logo.png" alt="logo" width={60} height={60} className="rounded-full p-2" />
         </IconButton>
 
         {/* Navigation Links */}
         <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <button className="rounded-full border border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-black hover:text-white text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-32">
+          <button 
+            className="rounded-full border border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-black hover:text-white text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-32"
+            onClick={redirectToHome} // Redirect Home
+          >
             Home
           </button>
           <button
             className="rounded-full border border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-black hover:text-white text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-32"
-            onClick={handleCreateClick} // Use separate function
+            onClick={handleCreateClick} // Check session before redirect
           >
             Create
           </button>

@@ -1,14 +1,33 @@
 "use client";
 import Image from "next/image";
-import React from "react";
+import React, { use, useEffect } from "react";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { AppBar, Toolbar, IconButton, InputBase, Avatar } from "@mui/material";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import SearchIcon from "@mui/icons-material/Search";
+import app from "../Shared/firebaseConfig";
+import {doc, setDoc, getFirestore} from "firebase/firestore";
+import { useRouter } from "next/navigation";
 
 function Header() {
   const { data: session } = useSession();
-  console.log(session);
+  const db = getFirestore(app);
+  const router = useRouter();
+
+  useEffect(() => {
+    savedUserInfo();
+  }, [session])
+
+  const savedUserInfo = async () => {
+    if(session?.user){
+      await setDoc(doc(db, "user", session.user.email),{
+        userName: session.user.name,
+        email: session.user.email,
+        image: session.user.image
+      });
+    }
+  }
+
   return (
     <AppBar 
       position="static" 
@@ -36,7 +55,7 @@ function Header() {
         </div>
 
         {/* Search Bar */}
-        <div className="flex bg-gray-200 rounded-full p-2 items-center w-full max-w-md hidden md:flex">
+        <div className="flex bg-gray-200 rounded-full p-2 items-center w-full max-w-md md:flex">
           <SearchIcon className="text-gray-500" />
           <InputBase placeholder="Search" className="ml-2 w-full" />
         </div>
@@ -55,7 +74,7 @@ function Header() {
             src={session.user.image || "/default-avatar.png"} 
             alt="user-avatar" 
             className="cursor-pointer"
-            onClick={() => signOut()} 
+            onClick={() => router.push('/' + session.user?.email)} 
           />
         ) : (
           <button

@@ -29,7 +29,7 @@ function Profile({params}) {
     return (
         <div>
             {userInfo?
-                <UserInfo userInfo = {userInfo}></UserInfo>
+                <UserInfo userInfo = {userInfo}/>
             : null}
         </div>
     )

@@ -4,7 +4,7 @@ import Image from 'next/image';
 function UserInfo({userInfo}) {
     console.log(userInfo);
     return (
-        <div className='flex flex-col items-center mt-4'>
+        <div className='flex flex-col items-center mt-8'>
             <Image
                 src={userInfo.image}
                 alt="User Image"

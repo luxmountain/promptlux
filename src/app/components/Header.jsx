@@ -84,7 +84,7 @@ function Header() {
         ) : (
           <button
             className="rounded-full border border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-black hover:text-white text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-32"
-            onClick={() => signIn("github", { prompt: "select_account" })}
+            onClick={() => signIn()}
           >
             Login
           </button>

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { signIn } from "next-auth/react";
-import ModalWrapper from "./wrapper/ModalWrapper";
+import ModalWrapper from "../wrapper/ModalWrapper";
 
-const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
+const LoginModal = ({ isOpen, onClose, onSwitch }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -104,7 +104,7 @@ const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
       {/* Đăng ký tài khoản */}
       <p className="text-center mt-4 text-sm">
         Not a member?{" "}
-        <button onClick={onSwitchToRegister} className="text-blue-600 cursor-pointer">
+        <button type="button" onClick={onSwitch} className="text-blue-600 cursor-pointer">
           Register
         </button>
       </p>

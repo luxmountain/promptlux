@@ -1,7 +1,7 @@
 import React from "react";
-import ModalWrapper from "./wrapper/ModalWrapper";
+import ModalWrapper from "../wrapper/ModalWrapper";
 
-const Register = ({ isOpen, onClose, onSwitchToLogin }) => {
+const Register = ({ isOpen, onClose, onSwitch }) => {
   return (
     <ModalWrapper isOpen={isOpen} onClose={onClose}>
       <h2 className="text-2xl font-bold text-center text-blue-600 mb-4">Register</h2>
@@ -31,7 +31,7 @@ const Register = ({ isOpen, onClose, onSwitchToLogin }) => {
         </button>
         <p className="text-center mt-4 text-sm">
             Already a member?{" "}
-            <button onClick={onSwitchToLogin} className="text-blue-600">
+            <button onClick={onSwitch} className="text-blue-600">
                 Log in
             </button>
         </p>

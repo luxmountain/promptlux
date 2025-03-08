@@ -1,18 +1,20 @@
 "use client";
 import Image from "next/image";
-import React, { useEffect } from "react";
-import { useSession, signIn } from "next-auth/react";
+import React, { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import { AppBar, Toolbar, IconButton, InputBase, Avatar } from "@mui/material";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import SearchIcon from "@mui/icons-material/Search";
 import app from "../Shared/firebaseConfig";
 import { doc, setDoc, getFirestore } from "firebase/firestore";
 import { useRouter } from "next/navigation";
+import LoginModal from "./LoginModal";
 
 function Header() {
   const { data: session } = useSession();
   const db = getFirestore(app);
   const router = useRouter();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     saveUserInfo();
@@ -33,8 +35,14 @@ function Header() {
 
   // Redirect functions
   const redirectToHome = () => router.push("/");
-  const handleCreateClick = () => (session?.user ? router.push("/pin-builder") : signIn());
-
+  const handleCreateClick = () => {
+    if (session?.user) {
+      router.push("/pin-builder");
+    } else {
+      setIsModalOpen(true); // Mở LoginModal nếu chưa đăng nhập
+    }
+  };
+  
   return (
     <AppBar position="static" color="default" sx={{ padding: "10px", boxShadow: "none" }}>
       <Toolbar className="flex justify-between">
@@ -84,12 +92,13 @@ function Header() {
         ) : (
           <button
             className="rounded-full border border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-black hover:text-white text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-32"
-            onClick={() => signIn()}
+            onClick={() => setIsModalOpen(true)}
           >
             Login
           </button>
         )}
       </Toolbar>
+      <LoginModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </AppBar>
   );
 }

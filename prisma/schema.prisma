@@ -8,15 +8,109 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  name      String
-  email     String   @unique
-  createdAt DateTime @default(now())
+  uid          String   @id @default(uuid())
+  first_name   String?
+  last_name    String?
+  username     String   @unique
+  email        String   @unique
+  created_at   DateTime @default(now())
+  bio          String?
+  password     String
+  avatar_image String?
+
+  followers    Follower[] @relation("following")
+  following    Follower[] @relation("followed")
+  posts        Post[]
+  comments     Comment[]
+  likes        Like[]
+  seen         Seen[]
+}
+
+model Follower {
+  following_user_id String
+  followed_user_id  String
+  created_at        DateTime @default(now())
+
+  following User @relation("following", fields: [following_user_id], references: [uid])
+  followed  User @relation("followed", fields: [followed_user_id], references: [uid])
+
+  @@id([following_user_id, followed_user_id])
+}
+
+model Like {
+  uid        String
+  pid        Int
+  created_at DateTime @default(now())
+
+  user User @relation(fields: [uid], references: [uid])
+  post Post @relation(fields: [pid], references: [pid])
+
+  @@id([uid, pid])
+}
+
+model Seen {
+  uid        String
+  pid        Int
+  created_at DateTime @default(now())
+
+  user User @relation(fields: [uid], references: [uid])
+  post Post @relation(fields: [pid], references: [pid])
+
+  @@id([uid, pid])
+}
+
+model Comment {
+  cid                 Int      @id @default(autoincrement())
+  uid                 String
+  pid                 Int
+  created_at          DateTime @default(now())
+  comment             String
+  comment_replied_to_id Int?   // Nullable
+  edited_at           DateTime?
+
+  user User @relation(fields: [uid], references: [uid])
+  post Post @relation(fields: [pid], references: [pid])
 }
 
 model Post {
-  id          Int      @id @default(autoincrement())
+  pid         Int      @id @default(autoincrement())
+  uid         String
+  created_at  DateTime @default(now())
+  edited_at   DateTime?
   description String
   prompt_used String
-  createdAt   DateTime @default(now())
+  mid         Int
+  seen_count  Int      @default(0)
+
+  user       User @relation(fields: [uid], references: [uid])
+  model      Model_Category @relation(fields: [mid], references: [mid])
+  comments   Comment[]
+  likes      Like[]
+  seen       Seen[]
+  post_tags  Post_tags[]
 }
+
+model Post_tags {
+  pid Int
+  tid Int
+
+  post Post @relation(fields: [pid], references: [pid])
+  tag  Tags @relation(fields: [tid], references: [tid])
+
+  @@id([pid, tid])
+}
+
+model Tags {
+  tid         Int    @id @default(autoincrement())
+  tag_content String
+  post_tags   Post_tags[]
+}
+
+model Model_Category {
+  mid        Int    @id @default(autoincrement())
+  model_name String
+  posts      Post[]
+}
+
+// Migrate: npx prisma migrate dev --name init
+// Open studio: npx prisma studio

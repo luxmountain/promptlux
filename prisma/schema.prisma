@@ -8,7 +8,7 @@ datasource db {
 }
 
 model User {
-  uid          Int      @id @default(autoincrement()) 
+  uid          Int      @id @default(autoincrement())
   first_name   String?
   last_name    String?
   username     String   @unique
@@ -18,17 +18,17 @@ model User {
   password     String
   avatar_image String?
 
-  followers    Follower[] @relation("following")
-  following    Follower[] @relation("followed")
-  posts        Post[]
-  comments     Comment[]
-  likes        Like[]
-  seen         Seen[]
+  followers Follower[] @relation("following")
+  following Follower[] @relation("followed")
+  posts     Post[]
+  comments  Comment[]
+  likes     Like[]
+  seen      Seen[]
 }
 
 model Follower {
-  following_user_id Int  // Đổi từ String -> Int
-  followed_user_id  Int  // Đổi từ String -> Int
+  following_user_id Int // Đổi từ String -> Int
+  followed_user_id  Int // Đổi từ String -> Int
   created_at        DateTime @default(now())
 
   following User @relation("following", fields: [following_user_id], references: [uid])
@@ -38,7 +38,7 @@ model Follower {
 }
 
 model Like {
-  uid        Int  // Đổi từ String -> Int
+  uid        Int // Đổi từ String -> Int
   pid        Int
   created_at DateTime @default(now())
 
@@ -49,7 +49,7 @@ model Like {
 }
 
 model Seen {
-  uid        Int  // Đổi từ String -> Int
+  uid        Int // Đổi từ String -> Int
   pid        Int
   created_at DateTime @default(now())
 
@@ -60,35 +60,35 @@ model Seen {
 }
 
 model Comment {
-  cid                 Int      @id @default(autoincrement())
-  uid                 Int      // Đổi từ String -> Int
-  pid                 Int
-  created_at          DateTime @default(now())
-  comment             String
-  comment_replied_to_id Int?   // Nullable
-  edited_at           DateTime?
+  cid                   Int       @id @default(autoincrement())
+  uid                   Int // Đổi từ String -> Int
+  pid                   Int
+  created_at            DateTime  @default(now())
+  comment               String
+  comment_replied_to_id Int? // Nullable
+  edited_at             DateTime?
 
   user User @relation(fields: [uid], references: [uid])
   post Post @relation(fields: [pid], references: [pid])
 }
 
 model Post {
-  pid         Int      @id @default(autoincrement())
-  uid         Int      // Đổi từ String -> Int
-  created_at  DateTime @default(now())
+  pid         Int       @id @default(autoincrement())
+  uid         Int // Đổi từ String -> Int
+  created_at  DateTime  @default(now())
   edited_at   DateTime?
   description String
   prompt_used String
   mid         Int
-  seen_count  Int      @default(0)
-  image_url   String?  
+  seen_count  Int       @default(0)
+  image_url   String?
 
-  user       User @relation(fields: [uid], references: [uid])
-  model      Model_Category @relation(fields: [mid], references: [mid])
-  comments   Comment[]
-  likes      Like[]
-  seen       Seen[]
-  post_tags  Post_tags[]
+  user      User           @relation(fields: [uid], references: [uid])
+  model     Model_Category @relation(fields: [mid], references: [mid])
+  comments  Comment[]
+  likes     Like[]
+  seen      Seen[]
+  post_tags Post_tags[]
 }
 
 model Post_tags {
@@ -102,7 +102,7 @@ model Post_tags {
 }
 
 model Tags {
-  tid         Int    @id @default(autoincrement())
+  tid         Int         @id @default(autoincrement())
   tag_content String
   post_tags   Post_tags[]
 }

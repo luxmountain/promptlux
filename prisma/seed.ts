@@ -1,5 +1,4 @@
-import { PrismaClient } from '@prisma/client';
-import { v4 as uuidv4 } from 'uuid';
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -20,79 +19,109 @@ async function main() {
   // ✅ Seed Categories
   await prisma.model_Category.createMany({
     data: [
-      { mid: 1, model_name: "Category A" },
-      { mid: 2, model_name: "Category B" },
+      { model_name: "AI Models" },
+      { model_name: "Photography" },
+      { model_name: "Art" },
+      { model_name: "Technology" },
+      { model_name: "Science" },
     ],
   });
 
-  // ✅ Seed Users (Fix: uuid for uid)
-  const user1Id = uuidv4();
-  const user2Id = uuidv4();
+  // ✅ Seed Users (5 người)
+  const users = await prisma.$transaction([
+    prisma.user.create({
+      data: { first_name: "John", last_name: "Doe", username: "johndoe", email: "john@example.com", password: "123456", created_at: new Date() },
+    }),
+    prisma.user.create({
+      data: { first_name: "Jane", last_name: "Smith", username: "janesmith", email: "jane@example.com", password: "123456", created_at: new Date() },
+    }),
+    prisma.user.create({
+      data: { first_name: "Alice", last_name: "Johnson", username: "alicej", email: "alice@example.com", password: "123456", created_at: new Date() },
+    }),
+    prisma.user.create({
+      data: { first_name: "Bob", last_name: "Brown", username: "bobb", email: "bob@example.com", password: "123456", created_at: new Date() },
+    }),
+    prisma.user.create({
+      data: { first_name: "Charlie", last_name: "Davis", username: "charlied", email: "charlie@example.com", password: "123456", created_at: new Date() },
+    }),
+  ]);
 
-  await prisma.user.createMany({
-    data: [
-      { uid: user1Id, first_name: "John", last_name: "Doe", username: "johndoe", email: "john@example.com", password: "123456", created_at: new Date() },
-      { uid: user2Id, first_name: "Jane", last_name: "Smith", username: "janesmith", email: "jane@example.com", password: "123456", created_at: new Date() },
-    ],
-  });
+  // ✅ Seed Posts (5 bài)
+  const posts = await prisma.$transaction([
+    prisma.post.create({ data: { uid: users[0].uid, description: "AI in 2025", prompt_used: "AI Future", created_at: new Date(), mid: 1, seen_count: 10 } }),
+    prisma.post.create({ data: { uid: users[1].uid, description: "Beautiful Landscape", prompt_used: "Nature", created_at: new Date(), mid: 2, seen_count: 20 } }),
+    prisma.post.create({ data: { uid: users[2].uid, description: "Modern Art", prompt_used: "Abstract", created_at: new Date(), mid: 3, seen_count: 30 } }),
+    prisma.post.create({ data: { uid: users[3].uid, description: "New Tech Innovations", prompt_used: "Technology", created_at: new Date(), mid: 4, seen_count: 40 } }),
+    prisma.post.create({ data: { uid: users[4].uid, description: "Scientific Breakthroughs", prompt_used: "Science", created_at: new Date(), mid: 5, seen_count: 50 } }),
+  ]);
 
-  // ✅ Seed Posts (Fix: pid is Int, uid uses uuid)
-  await prisma.post.createMany({
-    data: [
-      { pid: 1, uid: user1Id, description: "Post 1", prompt_used: "Prompt 1", created_at: new Date(), mid: 1, seen_count: 10 },
-      { pid: 2, uid: user2Id, description: "Post 2", prompt_used: "Prompt 2", created_at: new Date(), mid: 2, seen_count: 20 },
-    ],
-  });
-
-  // ✅ Seed Followers
+  // ✅ Seed Followers (5 quan hệ)
   await prisma.follower.createMany({
     data: [
-      { following_user_id: user1Id, followed_user_id: user2Id, created_at: new Date() },
-      { following_user_id: user2Id, followed_user_id: user1Id, created_at: new Date() },
+      { following_user_id: users[0].uid, followed_user_id: users[1].uid, created_at: new Date() },
+      { following_user_id: users[1].uid, followed_user_id: users[2].uid, created_at: new Date() },
+      { following_user_id: users[2].uid, followed_user_id: users[3].uid, created_at: new Date() },
+      { following_user_id: users[3].uid, followed_user_id: users[4].uid, created_at: new Date() },
+      { following_user_id: users[4].uid, followed_user_id: users[0].uid, created_at: new Date() },
     ],
   });
 
-  // ✅ Seed Likes
+  // ✅ Seed Likes (5 like)
   await prisma.like.createMany({
     data: [
-      { uid: user1Id, pid: 1, created_at: new Date() },
-      { uid: user2Id, pid: 2, created_at: new Date() },
+      { uid: users[0].uid, pid: posts[1].pid, created_at: new Date() },
+      { uid: users[1].uid, pid: posts[2].pid, created_at: new Date() },
+      { uid: users[2].uid, pid: posts[3].pid, created_at: new Date() },
+      { uid: users[3].uid, pid: posts[4].pid, created_at: new Date() },
+      { uid: users[4].uid, pid: posts[0].pid, created_at: new Date() },
     ],
   });
 
-  // ✅ Seed Seen
+  // ✅ Seed Seen (5 lượt xem)
   await prisma.seen.createMany({
     data: [
-      { uid: user1Id, pid: 2, created_at: new Date() },
-      { uid: user2Id, pid: 1, created_at: new Date() },
+      { uid: users[0].uid, pid: posts[2].pid, created_at: new Date() },
+      { uid: users[1].uid, pid: posts[3].pid, created_at: new Date() },
+      { uid: users[2].uid, pid: posts[4].pid, created_at: new Date() },
+      { uid: users[3].uid, pid: posts[0].pid, created_at: new Date() },
+      { uid: users[4].uid, pid: posts[1].pid, created_at: new Date() },
     ],
   });
 
-  // ✅ Seed Comments (Fix: cid is Int, uid uses uuid)
+  // ✅ Seed Comments (5 bình luận)
   await prisma.comment.createMany({
     data: [
-      { cid: 1, uid: user1Id, pid: 1, comment: "Great post!", created_at: new Date() },
-      { cid: 2, uid: user2Id, pid: 2, comment: "Nice!", created_at: new Date() },
+      { uid: users[0].uid, pid: posts[0].pid, comment: "Amazing AI insights!", created_at: new Date() },
+      { uid: users[1].uid, pid: posts[1].pid, comment: "This is beautiful!", created_at: new Date() },
+      { uid: users[2].uid, pid: posts[2].pid, comment: "Love this abstract style!", created_at: new Date() },
+      { uid: users[3].uid, pid: posts[3].pid, comment: "Tech is evolving so fast!", created_at: new Date() },
+      { uid: users[4].uid, pid: posts[4].pid, comment: "Science never stops amazing us!", created_at: new Date() },
     ],
   });
 
-  // ✅ Seed Tags
+  // ✅ Seed Tags (5 tags)
   await prisma.tags.createMany({
     data: [
-      { tid: 1, tag_content: "Technology" },
-      { tid: 2, tag_content: "Science" },
+      { tag_content: "AI" },
+      { tag_content: "Nature" },
+      { tag_content: "Art" },
+      { tag_content: "Technology" },
+      { tag_content: "Science" },
     ],
   });
 
-  // ✅ Seed Post_Tags
+  // ✅ Seed Post_Tags (5 tags cho bài viết)
   await prisma.post_tags.createMany({
     data: [
-      { pid: 1, tid: 1 },
-      { pid: 2, tid: 2 },
+      { pid: posts[0].pid, tid: 1 },
+      { pid: posts[1].pid, tid: 2 },
+      { pid: posts[2].pid, tid: 3 },
+      { pid: posts[3].pid, tid: 4 },
+      { pid: posts[4].pid, tid: 5 },
     ],
   });
 
-  console.log("✅ Seeding completed!");
+  console.log("✅ Seeding completed with 5 items per table!");
 }
 
 main()

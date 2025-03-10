@@ -1,7 +1,6 @@
 import React from "react";
 
 function PinItem({ pin }) {
-  console.log(pin);
   return (
     <div className="overflow-hidden mb-8">
       {/* Ảnh bài post */}

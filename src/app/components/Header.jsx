@@ -61,7 +61,7 @@ function Header() {
   };
 
   return (
-    <AppBar position="static" color="default" sx={{ padding: "10px", boxShadow: "none" }}>
+    <AppBar position="static" color="default" sx={{ padding: "10px", boxShadow: "none", backgroundColor: "white" }}>
       <Toolbar className="flex justify-between">
         {/* Logo */}
         <IconButton edge="start" color="inherit" className="rounded-full overflow-hidden" onClick={redirectToHome}>

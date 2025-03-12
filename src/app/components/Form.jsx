@@ -13,21 +13,20 @@ function Form() {
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
   const [link, setLink] = useState("");
-  const [file, setFile] = useState(null); // Giữ file ảnh để upload sau này
+  const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const db = getFirestore(app);
   const postId = Date.now().toString();
 
-  // Xử lý khi bấm nút Save
   const onSave = async () => {
     if (!session) {
-      signIn(); // Nếu chưa đăng nhập, yêu cầu đăng nhập
+      signIn();
       return;
     }
 
     if (!file || !title) {
-      console.warn("Vui lòng chọn ảnh và nhập tiêu đề!");
+      console.warn("Please select an image and enter a title!");
       return;
     }
 
@@ -35,22 +34,17 @@ function Form() {
     uploadFile();
   };
 
-  // 🛑 Ở đây chưa có backend xử lý upload, chỉ log ra file
   const uploadFile = async () => {
-    console.log("Chuẩn bị upload file:", file);
-
-    // Sau này bạn có thể thêm code upload lên Firebase Storage hoặc backend API tại đây
-
-    savePost("IMAGE_URL_PLACEHOLDER"); // Tạm thời truyền placeholder
+    console.log("Uploading file:", file);
+    savePost("IMAGE_URL_PLACEHOLDER");
   };
 
-  // Lưu dữ liệu bài post vào Firestore
   const savePost = async (imageUrl) => {
     const postData = {
       title,
       desc,
       link,
-      image: imageUrl, // Sẽ thay bằng URL sau khi upload thành công
+      image: imageUrl,
       userName: session?.user?.name,
       email: session?.user?.email,
       userImage: session?.user?.image,
@@ -61,30 +55,25 @@ function Form() {
       await setDoc(doc(db, "pinterest-post", postId), postData);
       console.log("Saved");
       setLoading(false);
-      router.push(`/`); // Chuyển hướng về trang cá nhân
+      router.push(`/`);
     } catch (error) {
-      console.error("Lỗi khi lưu bài đăng:", error);
+      console.error("Error saving post:", error);
       setLoading(false);
     }
   };
 
   return (
-    <div className="bg-white p-10 md:p-16 rounded-2xl max-w-4xl mx-auto shadow-md">
-      {/* Nút Save */}
-      <div className="flex justify-end mb-6">
+    <div className="bg-white p-8 rounded-2xl max-w-3xl mx-auto">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold">Create a new Pin</h2>
         <button
           onClick={onSave}
-          className="bg-red-500 p-2 text-white font-semibold px-4 rounded-lg flex items-center justify-center"
+          className="bg-red-500 text-white font-semibold px-5 py-2 rounded-lg hover:bg-red-600 transition"
           disabled={loading}
         >
           {loading ? (
-            <Image
-              src="/loading-indicator.png"
-              width={25}
-              height={25}
-              alt="loading"
-              className="animate-spin"
-            />
+            <Image src="/loading-indicator.png" width={25} height={25} alt="loading" className="animate-spin" />
           ) : (
             <span>Save</span>
           )}
@@ -92,49 +81,63 @@ function Form() {
       </div>
 
       {/* Grid Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Upload ảnh */}
-        <div className="flex flex-col gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Image Upload */}
+        <div className="md:col-span-1">
           <UploadImage setFile={setFile} />
-          {file && (
-            <p className="text-gray-500 text-sm">
-              File đã chọn: {file.name}
-            </p>
-          )}
         </div>
 
-        {/* Form nhập nội dung */}
-        <div className="col-span-2">
-          <div className="w-full">
-            {/* Tiêu đề */}
+        {/* Form Inputs */}
+        <div className="md:col-span-2 flex flex-col gap-4">
+          <div>
+            <label className="font-semibold">Title</label>
             <input
               type="text"
-              placeholder="Nhập tiêu đề"
+              placeholder="Add a title"
               onChange={(e) => setTitle(e.target.value)}
-              className="text-2xl md:text-3xl font-bold w-full outline-none border-b-2 border-gray-300 placeholder-gray-400 pb-2"
-            />
-            <p className="text-xs text-gray-400 mb-6">
-              40 ký tự đầu tiên sẽ hiển thị trên feed.
-            </p>
-
-            {/* Thông tin người dùng */}
-            <UserTag user={session?.user} />
-
-            {/* Mô tả */}
-            <textarea
-              placeholder="Mô tả về bài đăng"
-              onChange={(e) => setDesc(e.target.value)}
-              className="w-full outline-none border-b-2 border-gray-300 placeholder-gray-400 text-sm md:text-base py-4"
-            />
-
-            {/* Link đích */}
-            <input
-              type="text"
-              placeholder="Thêm liên kết đích (tùy chọn)"
-              onChange={(e) => setLink(e.target.value)}
-              className="w-full outline-none border-b-2 border-gray-300 placeholder-gray-400 text-sm md:text-base py-4 mt-6"
+              className="w-full border rounded-lg p-2 mt-1 focus:ring-2 focus:ring-blue-300"
             />
           </div>
+
+          <div>
+            <label className="font-semibold">Description</label>
+            <textarea
+              placeholder="Add a detailed description"
+              onChange={(e) => setDesc(e.target.value)}
+              className="w-full border rounded-lg p-2 mt-1 focus:ring-2 focus:ring-blue-300"
+              rows={4}
+            />
+          </div>
+
+          <div>
+            <label className="font-semibold">Prompt Used</label>
+            <input
+              type="text"
+              placeholder="Enter prompt used"
+              onChange={(e) => setLink(e.target.value)}
+              className="w-full border rounded-lg p-2 mt-1 focus:ring-2 focus:ring-blue-300"
+            />
+          </div>
+
+          <div>
+            <label className="font-semibold">Model Used</label>
+            <select className="w-full border rounded-lg p-2 mt-1 focus:ring-2 focus:ring-blue-300">
+              <option>Choose a AI model</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="font-semibold">Tags</label>
+            <input
+              type="text"
+              placeholder="Search for a tag"
+              className="w-full border rounded-lg p-2 mt-1 focus:ring-2 focus:ring-blue-300"
+            />
+          </div>
+
+          {/* <div className="text-blue-500 cursor-pointer mt-2 hover:underline">
+            More options
+          </div> */}
         </div>
       </div>
     </div>

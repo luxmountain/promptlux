@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import PinItem from "./PinItem";
 
-function PinList() {
+function PinListAll() {
   const [pins, setPins] = useState([]);
 
   // Fetch dữ liệu từ API
@@ -23,4 +23,4 @@ function PinList() {
   );
 }
 
-export default PinList;
+export default PinListAll;

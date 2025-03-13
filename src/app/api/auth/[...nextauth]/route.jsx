@@ -43,6 +43,35 @@ export const authOptions = {
     }),
   ],
   secret: process.env.NEXTAUTH_SECRET,
+  callbacks: {
+    async signIn({ user, account, profile }) {
+      if (account.provider === "github") {
+        const existingUser = await prisma.user.findUnique({
+          where: { email: user.email },
+        });
+
+        if (!existingUser) {
+          await prisma.user.create({
+            data: {
+              email: user.email,
+              first_name: profile.name.split(" ")[0],
+              last_name: profile.name.split(" ").slice(1).join(" "),
+              avatar_image: user.image,
+              username: profile.login,
+              password: "", // GitHub users won't have a password
+            },
+          });
+        }
+      }
+      return true;
+    },
+    async session({ session, token }) {
+      const user = await prisma.user.findUnique({
+        where: { email: session.user.email },
+      });
+      return session;
+    },
+  },
 };
 
 const handler = NextAuth(authOptions);

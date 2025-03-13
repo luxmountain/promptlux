@@ -30,42 +30,76 @@ function Form() {
     fetchModels();
   }, []);
 
+  const fetchUserUid = async (email) => {
+    try {
+      const response = await fetch(`/api/users/getId`, {
+        method: "POST", 
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+  
+      const data = await response.json();
+  
+      if (!response.ok) {
+        throw new Error(data.error || "Error fetching user UID");
+      }
+  
+      return data.uid;
+    } catch (error) {
+      console.error("Error fetching UID:", error);
+      return null;
+    }
+  };
+
   const onSave = async () => {
     if (!session) {
       signIn();
-      return;
-    }
-    console.log("Session:", session.user.id);
-    if (!imageUrl || !title || !modelUsed) {
-      console.warn("Please select an image, enter a title, and select a model!");
       return;
     }
 
     setLoading(true);
 
     try {
-      // ✅ Gửi dữ liệu post lên API backend
+      const email = session.user.email;
+      console.log("Fetching UID for:", email);
+      
+      const uid = await fetchUserUid(email);
+      console.log("UID:", uid);
+
+      if (!uid) {
+        console.error("Failed to fetch UID for email:", email);
+        setLoading(false);
+        return;
+      }
+
+      if (!imageUrl || !title || !modelUsed) {
+        console.warn("Please select an image, enter a title, and select a model!");
+        setLoading(false);
+        return;
+      }
+
+      // ✅ Gửi dữ liệu lên API /api/pins/
       const response = await fetch("/api/pins/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          uid: session.user.id, // Sử dụng uid từ session
+          uid, // UID lấy từ API
           description: desc,
           prompt_used: promptUsed,
           mid: modelUsed,
-          image_url: imageUrl, 
+          image_url: imageUrl,
           title: title,
         }),
       });
 
       const result = await response.json();
-      if (!response.ok) throw new Error(result.message || "Error creating post");
+      if (!response.ok) throw new Error(result.error || "Error creating post");
 
       console.log("Post saved successfully:", result);
-      setLoading(false);
       router.push(`/`);
     } catch (error) {
       console.error("Error:", error);
+    } finally {
       setLoading(false);
     }
   };

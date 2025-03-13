@@ -24,6 +24,7 @@ function Profile({ params }) {
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
+      console.log(docSnap.data());
       setUserInfo(docSnap.data());
     } else {
       // docSnap.data() will be undefined in this case

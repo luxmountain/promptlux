@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import UploadImage from "./UploadImage";
 import { useSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -13,7 +13,22 @@ function Form() {
   const [modelUsed, setModelUsed] = useState("");
   const [imageUrl, setImageUrl] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [models, setModels] = useState([]);
   const router = useRouter();
+
+  useEffect(() => {
+    const fetchModels = async () => {
+      try {
+        const response = await fetch("/api/model-category");
+        const data = await response.json();
+        setModels(data);
+      } catch (error) {
+        console.error("Error fetching models:", error);
+      }
+    };
+
+    fetchModels();
+  }, []);
 
   const onSave = async () => {
     if (!session) {
@@ -110,12 +125,17 @@ function Form() {
 
           <div>
             <label className="font-semibold">Model Used</label>
-            <input
-              type="text"
-              placeholder="Enter model ID"
+            <select
               onChange={(e) => setModelUsed(e.target.value)}
               className="w-full border rounded-lg p-2 mt-1 focus:ring-2 focus:ring-blue-300"
-            />
+            >
+              <option value="">Select a model</option>
+              {models.map((model) => (
+                <option key={model.mid} value={model.mid}>
+                  {model.model_name}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
       </div>

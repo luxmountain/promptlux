@@ -21,25 +21,36 @@ export const authOptions = {
       async authorize(credentials) {
         const user = await prisma.user.findUnique({
           where: { email: credentials.email },
+          select: {
+            uid: true,
+            email: true,
+            first_name: true,
+            last_name: true,
+            avatar_image: true,
+            password: true,
+          },
         });
-
+      
         if (!user) {
           throw new Error("User not found");
         }
-
+      
         const isValidPassword = await bcrypt.compare(credentials.password, user.password);
-
+      
         if (!isValidPassword) {
           throw new Error("Invalid email or password");
         }
-
+      
+        // Đảm bảo first_name và last_name không bị undefined/null
+        const fullName = [user.first_name, user.last_name].filter(Boolean).join(" ") || "No Name";
+      
         return {
-          id: user.uid,
-          name: `${user.first_name} ${user.last_name}`,
+          id: user.uid.toString(), // NextAuth yêu cầu ID là string
+          name: fullName, // Đã xử lý lỗi nếu thiếu tên
           email: user.email,
-          image: user.avatar_image,
+          image: user.avatar_image || "/default-avatar.png", // Đảm bảo luôn có ảnh mặc định
         };
-      },
+      }      
     }),
   ],
   secret: process.env.NEXTAUTH_SECRET,

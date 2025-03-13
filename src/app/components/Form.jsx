@@ -35,9 +35,9 @@ function Form() {
       signIn();
       return;
     }
-
-    if (!imageUrl || !title) {
-      console.warn("Please select an image and enter a title!");
+    console.log("Session:", session.user.id);
+    if (!imageUrl || !title || !modelUsed) {
+      console.warn("Please select an image, enter a title, and select a model!");
       return;
     }
 
@@ -49,7 +49,7 @@ function Form() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          uid: 1, // session.user.id
+          uid: session.user.id, // Sử dụng uid từ session
           description: desc,
           prompt_used: promptUsed,
           mid: modelUsed,
@@ -100,6 +100,7 @@ function Form() {
               placeholder="Add a title"
               onChange={(e) => setTitle(e.target.value)}
               className="w-full border rounded-lg p-2 mt-1 focus:ring-2 focus:ring-blue-300"
+              required
             />
           </div>
 
@@ -128,6 +129,7 @@ function Form() {
             <select
               onChange={(e) => setModelUsed(e.target.value)}
               className="w-full border rounded-lg p-2 mt-1 focus:ring-2 focus:ring-blue-300"
+              required
             >
               <option value="">Select a model</option>
               {models.map((model) => (

@@ -18,13 +18,13 @@ function UserInfo({ userInfo }) {
         alt="User Image"
         width={100}
         height={100}
-        className="w-36 h-36 rounded-full object-cover mb-4"
+        className="w-36 h-36 rounded-full object-cover"
       />
 
       <h2 className="text-[30px] font-semibold">{userInfo.userName}</h2>
       <h2 className="text-gray-400">{userInfo.email}</h2>
 
-      <div className="flex gap-4">
+      <div className="flex gap-4 mb-2">
         <button className="bg-gray-200 p-2 px-3 font-semibold mt-5 rounded-full cursor-pointer">
           Share
         </button>

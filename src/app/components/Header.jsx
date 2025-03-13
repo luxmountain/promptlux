@@ -3,7 +3,6 @@ import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { useSession, signIn } from "next-auth/react";
 import { AppBar, Toolbar, IconButton, InputBase, Avatar } from "@mui/material";
-import NotificationsIcon from "@mui/icons-material/Notifications";
 import SearchIcon from "@mui/icons-material/Search";
 import app from "../Shared/firebaseConfig";
 import { doc, setDoc, getFirestore } from "firebase/firestore";
@@ -90,14 +89,6 @@ function Header() {
           <SearchIcon className="text-gray-500" />
           <InputBase placeholder="Search" className="ml-2 w-full" />
         </div>
-
-        {/* Icons */}
-        <IconButton color="inherit" sx={{ display: { xs: "block", md: "none" } }}>
-          <SearchIcon />
-        </IconButton>
-        <IconButton color="inherit">
-          <NotificationsIcon />
-        </IconButton>
 
         {/* User Profile / Login */}
         {session?.user ? (

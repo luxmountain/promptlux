@@ -7,7 +7,7 @@ export async function POST(req: Request) {
   try {
     const { uid, description, prompt_used, mid, image_url, title } = await req.json();
 
-    if (!uid || !description || !mid) {
+    if (!uid || !description || !mid || !image_url || !title) {
       return NextResponse.json({ message: "Missing required fields" }, { status: 400 });
     }
 

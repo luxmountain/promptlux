@@ -71,7 +71,7 @@ model Post {
   description String
   prompt_used String
   created_at  DateTime       @default(now())
-  edited_at   DateTime?
+  edited_at   DateTime? 
   mid         Int
   pid         Int            @id @default(autoincrement())
   seen_count  Int            @default(0)

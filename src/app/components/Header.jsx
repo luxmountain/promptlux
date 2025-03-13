@@ -1,14 +1,14 @@
 "use client";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
-import { useSession, signIn } from "next-auth/react";
-import { AppBar, Toolbar, IconButton, InputBase, Avatar } from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
+import { useSession } from "next-auth/react";
+import { AppBar, Toolbar, IconButton, Avatar } from "@mui/material";
 import app from "../Shared/firebaseConfig";
 import { doc, setDoc, getFirestore } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import LoginModal from "./auth/LoginModal";
 import RegisterModal from "./auth/RegisterModal";
+import SearchBar from "./search/Bar";
 
 function Header() {
   const { data: session } = useSession();
@@ -62,7 +62,7 @@ function Header() {
 
   return (
     <AppBar position="static" color="default" sx={{ padding: "10px", boxShadow: "none", backgroundColor: "white" }}>
-      <Toolbar className="flex justify-between">
+      <Toolbar className="flex justify-between gap-8">
         {/* Logo */}
         <IconButton edge="start" color="inherit" className="rounded-full overflow-hidden" onClick={redirectToHome}>
           <Image src="/logo.png" alt="logo" width={60} height={60} className="rounded-full p-2" />
@@ -85,10 +85,7 @@ function Header() {
         </div>
 
         {/* Search Bar */}
-        <div className="flex bg-gray-200 rounded-full p-2 items-center w-full max-w-md">
-          <SearchIcon className="text-gray-500" />
-          <InputBase placeholder="Search" className="ml-2 w-full" />
-        </div>
+        <SearchBar/>
 
         {/* User Profile / Login */}
         {session?.user ? (

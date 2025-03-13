@@ -15,7 +15,7 @@ function PinListAll() {
   }, []);
 
   return (
-    <div className="columns-2 md:columns-3 lg:columns-4 gap-4 p-4">
+    <div className="columns-2 md:columns-4 lg:columns-6 gap-4 p-4">
       {pins.map((pin) => (
         <PinItem key={pin.id} pin={pin} />
       ))}

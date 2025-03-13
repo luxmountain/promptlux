@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import ModalWrapper from "../wrapper/ModalWrapper";
+import ModalWrapper from "../wrapper/ModalAuth";
 
 const Register = ({ isOpen, onClose, onSwitch }) => {
   const [formData, setFormData] = useState({

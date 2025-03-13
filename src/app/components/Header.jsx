@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
+import { useSession, signIn } from "next-auth/react";
 import { AppBar, Toolbar, IconButton, InputBase, Avatar } from "@mui/material";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import SearchIcon from "@mui/icons-material/Search";
@@ -26,11 +26,12 @@ function Header() {
   const saveUserInfo = async () => {
     if (!session?.user?.email) return;
     try {
-      await setDoc(doc(db, "users", session.user.email), {
+      const userData = {
         userName: session.user.name,
         email: session.user.email,
-        image: session.user.image,
-      });
+        image: session.user.image || null, // Ensure image is not undefined
+      };
+      await setDoc(doc(db, "users", session.user.email), userData);
     } catch (error) {
       console.error("Error saving user info:", error);
     }

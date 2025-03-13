@@ -18,7 +18,7 @@ function UserInfo({ userInfo }) {
         alt="User Image"
         width={100}
         height={100}
-        className="rounded-full"
+        className="w-36 h-36 rounded-full object-cover mb-4"
       />
 
       <h2 className="text-[30px] font-semibold">{userInfo.userName}</h2>

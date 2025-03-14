@@ -22,9 +22,7 @@ const InputComment = ({ postId, userId, onNewComment }) => {
       });
 
       if (response.ok) {
-        const newComment = await response.json();
-        onNewComment(newComment); // Cập nhật comment ngay lập tức
-        setMessage(""); // Xóa nội dung sau khi gửi
+        window.location.reload();
       } else {
         console.error("Failed to post comment");
       }

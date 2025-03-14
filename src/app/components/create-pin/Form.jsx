@@ -4,7 +4,7 @@ import UploadImage from "./UploadImage";
 import { useSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import Tag from "./suggestion/Tag";
+import Tag from "../suggestion/Tag";
 
 function Form() {
   const { data: session } = useSession();

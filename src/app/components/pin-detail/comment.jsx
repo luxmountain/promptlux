@@ -4,14 +4,18 @@ import { useState, useEffect } from "react";
 export default function Comment({ comments = [], userId }) {
   const [heartClicked, setHeartClicked] = useState({});
   const [likes, setLikes] = useState({});
-  const [userDetails, setUserDetails] = useState({}); // Store user details
+  const [userDetails, setUserDetails] = useState({});
+  const [showPopup, setShowPopup] = useState(null);
+  const [commentList, setCommentList] = useState(comments);
+  const [editingComment, setEditingComment] = useState(null);
+  const [editText, setEditText] = useState("");
 
   useEffect(() => {
     async function fetchUserData() {
-      const uniqueUserIds = [...new Set(comments.map((comment) => comment.uid))]; // Get unique userIds
-      const usersToFetch = uniqueUserIds.filter((id) => id && !userDetails[id]); // Only fetch missing users
+      const uniqueUserIds = [...new Set(commentList.map((comment) => comment.uid))];
+      const usersToFetch = uniqueUserIds.filter((id) => id && !userDetails[id]);
 
-      if (usersToFetch.length === 0) return; // If no users need fetching, stop
+      if (usersToFetch.length === 0) return;
 
       try {
         const userResponses = await Promise.all(
@@ -27,50 +31,109 @@ export default function Comment({ comments = [], userId }) {
           return acc;
         }, {});
 
-        console.log("Fetched user details:", newUserDetails); // Log fetched user details
-
-        setUserDetails((prev) => ({ ...prev, ...newUserDetails })); // Update state with new user data
+        setUserDetails((prev) => ({ ...prev, ...newUserDetails }));
       } catch (error) {
         console.error("Error fetching users:", error);
       }
     }
 
     fetchUserData();
-  }, [comments]); // Re-run when comments change
+  }, [commentList]);
 
-  const handleHeartClick = (cid) => {
-    setHeartClicked((prev) => ({ ...prev, [cid]: !prev[cid] }));
-    setLikes((prev) => ({ ...prev, [cid]: prev[cid] ? prev[cid] - 1 : (prev[cid] || 0) + 1 }));
+  const handleEditClick = (cid, currentText) => {
+    setEditingComment(cid);
+    setEditText(currentText);
+    setShowPopup(null);
   };
 
-  console.log("Comments:", comments); // Log comments to check if they are being passed correctly
-  console.log("User Details:", userDetails); // Log user details to check if they are being updated correctly
+  const handleEditCancel = () => {
+    setEditingComment(null);
+    setEditText("");
+  };
+
+  const handleEditSave = async (cid) => {
+    try {
+      const response = await fetch(`/api/comment/edit/${cid}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ comment: editText }),
+      });
+
+      if (!response.ok) throw new Error("Failed to edit comment");
+
+      const updatedComment = await response.json();
+
+      setCommentList((prevComments) =>
+        prevComments.map((comment) => (comment.cid === updatedComment.cid ? updatedComment : comment))
+      );
+
+      setEditingComment(null);
+      setEditText("");
+      window.location.reload();
+    } catch (error) {
+      console.error("Error editing comment:", error);
+    }
+  };
+
+  const handleDelete = async (cid) => {
+    try {
+      const response = await fetch(`/api/comment/delete/${cid}`, { method: "DELETE" });
+      if (!response.ok) throw new Error("Failed to delete comment");
+
+      setCommentList((prevComments) => prevComments.filter((comment) => comment.cid !== cid));
+      setShowPopup(null);
+      window.location.reload();
+    } catch (error) {
+      console.error("Error deleting comment:", error);
+    }
+  };
 
   return (
     <div className="max-h-96 overflow-y-auto pr-2">
-      {comments.length === 0 ? (
+      {commentList.length === 0 ? (
         <p>No comments available.</p>
       ) : (
-        comments.map((comment) => {
-          const user = userDetails[comment.uid] || {}; // Get user data
-          console.log("Rendering comment for user:", user); // Log user data for each comment
+        commentList.map((comment) => {
+          const user = userDetails[comment.uid] || {};
 
           return (
             <div key={comment.cid} className="mb-8 bg-white shadow rounded-lg p-4">
               <div className="flex items-center space-x-3">
-                {/* Display Avatar */}
                 {user.avatar_image ? (
                   <img src={user.avatar_image} alt="Avatar" className="w-8 h-8 rounded-full" />
                 ) : (
-                  <div className="w-8 h-8 bg-gray-300 rounded-full animate-pulse"></div> // Loading placeholder
+                  <div className="w-8 h-8 bg-gray-300 rounded-full animate-pulse"></div>
                 )}
 
-                <div className="flex flex-col">
-                  {/* Display Username */}
+                <div className="flex flex-col w-full">
                   <span className="font-semibold">
                     {user.username ? user.username : "Loading..."}
                   </span>
-                  <span>{comment.comment}</span>
+
+                  {editingComment === comment.cid ? (
+                    <div className="flex space-x-2 mt-2">
+                      <input
+                        type="text"
+                        value={editText}
+                        onChange={(e) => setEditText(e.target.value)}
+                        className="border p-1 flex-1 rounded-md"
+                      />
+                      <button
+                        onClick={() => handleEditSave(comment.cid)}
+                        className="bg-blue-500 text-white px-3 py-1 rounded-md"
+                      >
+                        Save
+                      </button>
+                      <button
+                        onClick={handleEditCancel}
+                        className="bg-gray-400 text-white px-3 py-1 rounded-md"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <span>{comment.comment}</span>
+                  )}
                 </div>
               </div>
 
@@ -78,20 +141,35 @@ export default function Comment({ comments = [], userId }) {
                 <span>{new Date(comment.created_at).toLocaleDateString()}</span>
                 <button className="hover:text-gray-800">Reply</button>
 
-                <div className="flex items-center space-x-1">
-                  <button onClick={() => handleHeartClick(comment.cid)} className="hover:bg-gray-200 p-1 rounded-full">
-                    {heartClicked[comment.cid] ? (
-                      <svg fill="#ff4d4d" width="20" height="20" viewBox="0 0 256 256">
-                        <path d="M220.3,136.5l-81,81a16,16,0,0,1-22.6,0L33.6,134.4a60,60,0,0,1,2.3-87,59.5,59.5,0,0,1,87.1,2.3l7.5,7.5,9.6-9.6a60.7,60.7,0,0,1,44-17.6,59.5,59.5,0,0,1,44.5,19.9C245.6,75.2,243.7,113.2,220.3,136.5Z"/>
+                {comment.uid === userId && (
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowPopup(showPopup === comment.cid ? null : comment.cid)}
+                      className="hover:bg-gray-200 p-1 rounded-full cursor-pointer"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="#000000" height="20px" width="20px" viewBox="0 0 16 16">
+                        <path d="M8,6.5A1.5,1.5,0,1,1,6.5,8,1.5,1.5,0,0,1,8,6.5ZM.5,8A1.5,1.5,0,1,0,2,6.5,1.5,1.5,0,0,0,.5,8Zm12,0A1.5,1.5,0,1,0,14,6.5,1.5,1.5,0,0,0,12.5,8Z"/>
                       </svg>
-                    ) : (
-                      <svg fill="black" width="20" height="20" viewBox="0 0 256 256">
-                        <path d="M128,226.2a20,20,0,0,1-14.1-5.8L30.7,137.3A64,64,0,0,1,33.2,44.4,62,62,0,0,1,79.2,28.8a68.7,68.7,0,0,1,44.1,20L128,53.5l6.7-6.7a64,64,0,0,1,92.9,2.5A62,62,0,0,1,243.2,95.2a68.7,68.7,0,0,1-20,44.1l-81,81A20,20,0,0,1,128,226.2Z"/>
-                      </svg>
+                    </button>
+
+                    {showPopup === comment.cid && (
+                      <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-md py-2">
+                        <button
+                          onClick={() => handleEditClick(comment.cid, comment.comment)}
+                          className="block w-full text-left px-4 py-2 text-sm text-gray-700 cursor-pointer hover:bg-gray-200"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(comment.cid)}
+                          className="block w-full text-left px-4 py-2 text-sm text-red-600 cursor-pointer hover:bg-gray-200"
+                        >
+                          Delete
+                        </button>
+                      </div>
                     )}
-                  </button>
-                  {likes[comment.cid] > 0 && <span>{likes[comment.cid]}</span>}
-                </div>
+                  </div>
+                )}
               </div>
             </div>
           );

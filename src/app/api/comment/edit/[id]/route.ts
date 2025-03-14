@@ -4,7 +4,7 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 export async function PUT(req: Request, { params }: { params: { id: string } }) {
-  const { comment } = await req.json(); // Lấy comment mới từ body request
+  const { comment } = await req.json();
   const commentId = parseInt(params.id, 10);
 
   if (isNaN(commentId)) {
@@ -14,7 +14,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   try {
     const updatedComment = await prisma.comment.update({
       where: { cid: commentId },
-      data: { comment },  // Cập nhật comment với dữ liệu mới
+      data: { comment },
     });
 
     return NextResponse.json({ message: "Comment updated successfully", updatedComment });

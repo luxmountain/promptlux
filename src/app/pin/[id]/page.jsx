@@ -12,18 +12,37 @@ import LoginModal from "../../components/auth/LoginModal"; // Import modal login
 function PostDetail() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const { id: postId } = useParams(); // Lấy postId từ URL
+  const { id: postId } = useParams();
+  
   const [post, setPost] = useState(null);
+  const [userId, setUserId] = useState(null); // Lưu UID của người dùng
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false); // State cho login modal
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   useEffect(() => {
-    if (status === "loading") return; // Chờ session load xong
+    if (status === "loading") return; 
     if (!session) {
-      setIsLoginModalOpen(true); // Mở modal đăng nhập nếu chưa đăng nhập
+      setIsLoginModalOpen(true);
       return;
     }
+
+    const fetchUserId = async () => {
+      try {
+        const res = await fetch("/api/users/getId", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: session.user.email }),
+        });
+
+        if (!res.ok) throw new Error("Không tìm thấy UID");
+
+        const data = await res.json();
+        setUserId(data.uid);
+      } catch (err) {
+        console.error("Lỗi lấy UID:", err);
+      }
+    };
 
     const fetchPost = async () => {
       try {
@@ -39,6 +58,7 @@ function PostDetail() {
       }
     };
 
+    fetchUserId();
     fetchPost();
   }, [session, status, postId]);
 
@@ -62,11 +82,11 @@ function PostDetail() {
             <Picture imageUrl={post?.image_url || "https://via.placeholder.com/500"} />
 
             <div className="w-1/2 flex flex-col gap-4 p-4">
-              <PostActions />
+              {/* Truyền thêm userId vào PostActions */}
+              <PostActions postId={Number(postId)} userId={userId} />
+
               <div className="space-y-2">
-                <div className="">
-                  <h6 className="text-lg font-semibold">{post?.title || "Không có tiêu đề"}</h6>
-                </div>
+                <h6 className="text-lg font-semibold">{post?.title || "Không có tiêu đề"}</h6>
                 <div className="flex items-center gap-2">
                   <Avatar src={post?.user?.avatar_image || "/avatar-small.png"} className="w-6 h-6" />
                   <span className="font-bold">{post?.user?.username || "Người dùng"}</span>
@@ -76,10 +96,12 @@ function PostDetail() {
               <div className="flex justify-between items-center py-2">
                 <span className="font-bold">{post?.comments?.length || 0} Comments</span>
               </div>
+              
               {post?.comments?.map((comment) => (
-                <Comment key={comment.id} content={comment.content} />
+                <Comment key={comment.cid} content={comment.comment} user={comment.user} />
               ))}
-              <InputComment />
+              
+              <InputComment postId={Number(postId)} userId={userId} />
             </div>
           </div>
         </div>

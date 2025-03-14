@@ -5,19 +5,19 @@ const InputComment = ({ postId, userId }) => {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const textAreaRef = useRef(null);
-
   const handleSendComment = async () => {
     if (!message.trim()) return;
-
+    
     setLoading(true);
     try {
-      const response = await fetch("/api/comment/create", {
+      const response = await fetch("/api/comment/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           uid: userId,
           pid: postId,
           comment: message,
+          comment_replied_to_id: null, // Nếu trả lời comment khác
         }),
       });
 

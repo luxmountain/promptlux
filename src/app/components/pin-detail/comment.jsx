@@ -1,38 +1,12 @@
 'use client';
 import { useState, useEffect } from 'react';
 
-export default function Comment() {
-  const [comments, setComments] = useState([]);
+export default function Comment({ comments = [] }) {
   const [heartClicked, setHeartClicked] = useState([]);
   const [dotsClicked, setDotsClicked] = useState([]);
   const [likes, setLikes] = useState([]);
   const [replyIndex, setReplyIndex] = useState(null);
   const [replyText, setReplyText] = useState("");
-
-  useEffect(() => {
-    // Fake API call
-    const fetchComments = async () => {
-      const data = [
-        {
-          "cid": 1,
-          "comment": "Amazing AI insights!",
-          "created_at": "2025-03-10T04:52:47.059Z",
-          "edited_at": null,
-          "user": {
-            "uid": 1,
-            "username": "johndoe",
-            "avatar_image": "https://i.pinimg.com/474x/78/10/f9/7810f9385a56ee928b90d3903bf4f934.jpg"
-          }
-        }
-      ];
-      setComments(data);
-      setHeartClicked(Array(data.length).fill(false));
-      setDotsClicked(Array(data.length).fill(false));
-      setLikes(Array(data.length).fill(0));
-    };
-
-    fetchComments();
-  }, []);
 
   const handleHeartClick = (index) => {
     const updatedHeartClicked = [...heartClicked];
@@ -114,4 +88,4 @@ export default function Comment() {
       ))}
     </div>
   );
-}
+} 

@@ -1,18 +1,16 @@
 "use client";
 import React, { useEffect, useState } from "react";
 
-const PostActions = ({ postId }) => {
+const PostActions = ({ postId, userId }) => {
   const [isHeartClicked, setIsHeartClicked] = useState(false);
   const [likes, setLikes] = useState(0);
   const [isShareClicked, setIsShareClicked] = useState(false);
   const [isDotsClicked, setIsDotsClicked] = useState(false);
-  const [isProfileClicked, setIsProfileClicked] = useState(false);
   const [isSaveClicked, setIsSaveClicked] = useState(false);
-
-  // Fetch like count from API
+  console.log(userId);
   const fetchLikes = async () => {
     try {
-      const response = await fetch("/api/like/getLikes", {
+      const response = await fetch("/api/like/getLike", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ pid: postId }),
@@ -21,6 +19,7 @@ const PostActions = ({ postId }) => {
       if (response.ok) {
         const data = await response.json();
         setLikes(data.count);
+        setIsHeartClicked(data.likes.some((like) => like.uid === userId));
       } else {
         console.error("Failed to fetch likes");
       }
@@ -33,23 +32,39 @@ const PostActions = ({ postId }) => {
     fetchLikes();
   }, [postId]);
 
-  // Handle Like Click
   const handleHeartClick = async () => {
-    console.log(`Heart clicked! Current state: ${isHeartClicked ? "Liked" : "Unliked"}`);
-
-    setIsHeartClicked(!isHeartClicked);
-    setLikes((prev) => (isHeartClicked ? prev - 1 : prev + 1));
-
     try {
-      await fetch("/api/like/toggleLike", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pid: postId, action: isHeartClicked ? "unlike" : "like" }),
-      });
-
-      console.log(`Like API called: ${isHeartClicked ? "Unlike" : "Like"}`);
+      if (isHeartClicked) {
+        // Gọi API DELETE để unlike
+        const response = await fetch("/api/like", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ uid: userId, pid: postId }),
+        });
+  
+        if (response.ok) {
+          setIsHeartClicked(false);
+          setLikes((prev) => prev - 1);
+        } else {
+          console.error("Error unliking post");
+        }
+      } else {
+        // Gọi API POST để like
+        const response = await fetch("/api/like", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ uid: userId, pid: postId }),
+        });
+  
+        if (response.ok) {
+          setIsHeartClicked(true);
+          setLikes((prev) => prev + 1);
+        } else {
+          console.error("Error liking post");
+        }
+      }
     } catch (error) {
-      console.error("Error toggling like:", error);
+      console.error("Error handling like:", error);
     }
   };
 
@@ -78,10 +93,7 @@ const PostActions = ({ postId }) => {
 
         {/* Share Button */}
         <button
-          onClick={() => {
-            setIsShareClicked(!isShareClicked);
-            console.log(`Share clicked! New state: ${!isShareClicked}`);
-          }}
+          onClick={() => setIsShareClicked(!isShareClicked)}
           className={`w-10 h-10 flex items-center justify-center rounded-full transition ${
             isShareClicked ? "bg-black text-white" : "hover:bg-gray-200"
           }`}
@@ -94,10 +106,7 @@ const PostActions = ({ postId }) => {
 
         {/* Dots Button */}
         <button
-          onClick={() => {
-            setIsDotsClicked(!isDotsClicked);
-            console.log(`Dots clicked! New state: ${!isDotsClicked}`);
-          }}
+          onClick={() => setIsDotsClicked(!isDotsClicked)}
           className={`w-10 h-10 flex items-center justify-center rounded-full transition ${
             isDotsClicked ? "bg-black text-white" : "hover:bg-gray-200"
           }`}
@@ -114,10 +123,7 @@ const PostActions = ({ postId }) => {
       <div className="flex items-center space-x-4">
         {/* Save Button */}
         <button
-          onClick={() => {
-            setIsSaveClicked(!isSaveClicked);
-            console.log(`Save clicked! New state: ${!isSaveClicked}`);
-          }}
+          onClick={() => setIsSaveClicked(!isSaveClicked)}
           className={`px-4 py-2 rounded-full transition ${
             isSaveClicked ? "bg-black text-white" : "bg-red-500 text-white"
           }`}

@@ -7,7 +7,6 @@ const PostActions = ({ postId, userId }) => {
   const [isShareClicked, setIsShareClicked] = useState(false);
   const [isDotsClicked, setIsDotsClicked] = useState(false);
   const [isSaveClicked, setIsSaveClicked] = useState(false);
-  console.log(userId);
   const fetchLikes = async () => {
     try {
       const response = await fetch("/api/like/getLike", {

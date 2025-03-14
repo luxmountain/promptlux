@@ -5,23 +5,23 @@ import { Avatar } from "@mui/material";
 import { useSession } from "next-auth/react";
 import InputComment from "../../components/pin-detail/input-comment";
 import PostActions from "../../components/pin-detail/actions";
-import Comment from "../../components/pin-detail/comment";
+import Comment from "../../components/pin-detail/comment"; // Import component đã sửa
 import Picture from "../../components/pin-detail/picture";
-import LoginModal from "../../components/auth/LoginModal"; // Import modal login
+import LoginModal from "../../components/auth/LoginModal";
 
 function PostDetail() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const { id: postId } = useParams();
-  
+
   const [post, setPost] = useState(null);
-  const [userId, setUserId] = useState(null); // Lưu UID của người dùng
+  const [userId, setUserId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   useEffect(() => {
-    if (status === "loading") return; 
+    if (status === "loading") return;
     if (!session) {
       setIsLoginModalOpen(true);
       return;
@@ -82,7 +82,6 @@ function PostDetail() {
             <Picture imageUrl={post?.image_url || "https://via.placeholder.com/500"} />
 
             <div className="w-1/2 flex flex-col gap-4 p-4">
-              {/* Truyền thêm userId vào PostActions */}
               <PostActions postId={Number(postId)} userId={userId} />
 
               <div className="space-y-2">
@@ -93,21 +92,16 @@ function PostDetail() {
                 </div>
               </div>
 
-              <div className="flex justify-between items-center py-2">
-                <span className="font-bold">{post?.comments?.length || 0} Comments</span>
-              </div>
-              
-              {post?.comments?.map((comment) => (
-                <Comment key={comment.cid} content={comment.comment} user={comment.user} />
-              ))}
-              
+              <span className="font-bold">{post?.comments?.length || 0} Comments</span>
+
+              <Comment comments={post?.comments || []} userId={userId} />
+
               <InputComment postId={Number(postId)} userId={userId} />
             </div>
           </div>
         </div>
       </div>
 
-      {/* Login Modal */}
       <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
     </>
   );

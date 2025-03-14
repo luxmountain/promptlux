@@ -1,13 +1,13 @@
 "use client";
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 
-const InputComment = ({ postId, userId }) => {
+const InputComment = ({ postId, userId, onNewComment }) => {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const textAreaRef = useRef(null);
+
   const handleSendComment = async () => {
     if (!message.trim()) return;
-    
+
     setLoading(true);
     try {
       const response = await fetch("/api/comment/", {
@@ -17,17 +17,16 @@ const InputComment = ({ postId, userId }) => {
           uid: userId,
           pid: postId,
           comment: message,
-          comment_replied_to_id: null, // Nếu trả lời comment khác
+          comment_replied_to_id: null,
         }),
       });
 
-      const data = await response.json();
-
       if (response.ok) {
-        console.log("Comment posted:", data);
+        const newComment = await response.json();
+        onNewComment(newComment); // Cập nhật comment ngay lập tức
         setMessage(""); // Xóa nội dung sau khi gửi
       } else {
-        console.error("Failed to post comment:", data.error);
+        console.error("Failed to post comment");
       }
     } catch (error) {
       console.error("Error:", error);
@@ -38,17 +37,13 @@ const InputComment = ({ postId, userId }) => {
 
   return (
     <div className="relative w-full max-w-lg rounded-2xl">
-      {/* Textarea */}
       <textarea
-        ref={textAreaRef}
         placeholder="Add a comment..."
         value={message}
         onChange={(e) => setMessage(e.target.value)}
         rows={2}
         className="w-full p-3 pr-12 text-sm bg-white border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-400"
       />
-
-      {/* Send button */}
       {message.trim().length > 0 && (
         <button
           onClick={handleSendComment}

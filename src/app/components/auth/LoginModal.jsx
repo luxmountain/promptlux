@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect } from "react";
 import { signIn } from "next-auth/react";
 import ModalWrapper from "../wrapper/ModalAuth";

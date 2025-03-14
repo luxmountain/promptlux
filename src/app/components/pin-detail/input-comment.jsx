@@ -1,94 +1,63 @@
-import React, { useState, useRef, useEffect } from "react";
+"use client";
+import React, { useState, useRef } from "react";
 
-const InputComment = () => {
+const InputComment = ({ postId, userId }) => {
   const [message, setMessage] = useState("");
-  const [active, setActive] = useState({
-    icon: false,
-    sticker: false,
-    image: false,
-    send: false,
-  });
+  const [loading, setLoading] = useState(false);
+  const textAreaRef = useRef(null);
 
-  const textFieldRef = useRef(null);
-  const containerRef = useRef(null);
-  const [fiWidth, setFiWidth] = useState(0);
+  const handleSendComment = async () => {
+    if (!message.trim()) return;
 
-  useEffect(() => {
-    if (containerRef.current) {
-      setFiWidth(containerRef.current.offsetWidth);
-    }
+    setLoading(true);
+    try {
+      const response = await fetch("/api/comment/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          uid: userId,
+          pid: postId,
+          comment: message,
+        }),
+      });
 
-    const handleResize = () => {
-      if (containerRef.current) {
-        setFiWidth(containerRef.current.offsetWidth);
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("Comment posted:", data);
+        setMessage(""); // Xóa nội dung sau khi gửi
+      } else {
+        console.error("Failed to post comment:", data.error);
       }
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (textFieldRef.current) {
-      textFieldRef.current.style.height = "auto";
-      textFieldRef.current.style.height = textFieldRef.current.scrollHeight + "px";
+    } catch (error) {
+      console.error("Error:", error);
+    } finally {
+      setLoading(false);
     }
-  }, [message]);
-
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      console.log("Message sent:", message);
-    }
-  };
-
-  const toggleActive = (key) => {
-    setActive({
-      icon: false,
-      sticker: false,
-      image: false,
-      send: false,
-      [key]: !active[key],
-    });
   };
 
   return (
-    <div ref={containerRef} className="w-full p-3 bg-gray-200 rounded-2xl">
-      <div className="flex items-center w-full">
-        <div className={`transition-all ${message.length * 10 > fiWidth * 0.45 ? "w-full" : "w-3/5"}`}>
-          <textarea
-            ref={textFieldRef}
-            placeholder="Enter your text here..."
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            onKeyDown={handleKeyDown}
-            rows={1}
-            className="w-full p-2 text-sm bg-white border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
-        </div>
+    <div className="relative w-full max-w-lg rounded-2xl">
+      {/* Textarea */}
+      <textarea
+        ref={textAreaRef}
+        placeholder="Add a comment..."
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+        rows={2}
+        className="w-full p-3 pr-12 text-sm bg-white border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-400"
+      />
 
-        {message.length * 10 > fiWidth * 0.45 && <div className="w-3/5 transition-all"></div>}
-
-        <div className="flex items-center space-x-2">
-          <button onClick={() => toggleActive("icon")} className={`p-2 rounded-full transition ${active.icon ? "bg-black text-white" : "bg-gray-200 text-black"}`}>
-            😊
-          </button>
-          <button onClick={() => toggleActive("sticker")} className={`p-2 rounded-full transition ${active.sticker ? "bg-black text-white" : "bg-gray-200 text-black"}`}>
-            🎭
-          </button>
-          <button onClick={() => toggleActive("image")} className={`p-2 rounded-full transition ${active.image ? "bg-black text-white" : "bg-gray-200 text-black"}`}>
-            📷
-          </button>
-        </div>
-
-        {message.trim().length > 0 && (
-          <button onClick={() => toggleActive("send")} className="p-2 ml-2 text-white bg-red-500 rounded-full hover:bg-red-700">
-            🚀
-          </button>
-        )}
-      </div>
+      {/* Send button */}
+      {message.trim().length > 0 && (
+        <button
+          onClick={handleSendComment}
+          disabled={loading}
+          className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 text-white bg-red-500 rounded-full hover:bg-red-700 disabled:bg-gray-400"
+        >
+          {loading ? "⏳" : "🚀"}
+        </button>
+      )}
     </div>
   );
 };

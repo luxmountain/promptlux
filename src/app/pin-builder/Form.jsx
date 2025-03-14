@@ -4,6 +4,7 @@ import UploadImage from "./UploadImage";
 import { useSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import Tag from "./suggestion/Tag";
 
 function Form() {
   const { data: session } = useSession();
@@ -14,6 +15,7 @@ function Form() {
   const [imageUrl, setImageUrl] = useState(null);
   const [loading, setLoading] = useState(false);
   const [models, setModels] = useState([]);
+  const [selectedTags, setSelectedTags] = useState([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -78,7 +80,7 @@ function Form() {
         return;
       }
 
-      // ✅ Gửi dữ liệu lên API /api/pins/
+      // Gửi dữ liệu lên API /api/pins/
       const response = await fetch("/api/pins/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -89,6 +91,7 @@ function Form() {
           mid: modelUsed,
           image_url: imageUrl,
           title: title,
+          tags: selectedTags, // Gửi các tag đã chọn
         }),
       });
 
@@ -105,7 +108,7 @@ function Form() {
   };
 
   return (
-    <div className="bg-white p-8 rounded-2xl max-w-3xl mx-auto">
+    <div className="bg-white rounded-2xl max-w-3xl mx-auto">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Create a new Pin</h2>
         <button
@@ -133,7 +136,7 @@ function Form() {
               type="text"
               placeholder="Add a title"
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full border rounded-lg p-2 mt-1 focus:ring-2 focus:ring-blue-300"
+              className="w-full border border-[#cdcdcd] rounded-lg p-2 mt-1 focus:ring-2 focus:ring-blue-300"
               required
             />
           </div>
@@ -143,18 +146,18 @@ function Form() {
             <textarea
               placeholder="Add a detailed description"
               onChange={(e) => setDesc(e.target.value)}
-              className="w-full border rounded-lg p-2 mt-1 focus:ring-2 focus:ring-blue-300"
-              rows={4}
+              className="resize-none w-full border rounded-lg border-[#cdcdcd] p-2 mt-1 focus:ring-2 focus:ring-blue-300"
+              rows={3}
             />
           </div>
 
           <div>
             <label className="font-semibold">Prompt Used</label>
-            <input
-              type="text"
+            <textarea
               placeholder="Enter prompt used"
               onChange={(e) => setPromptUsed(e.target.value)}
-              className="w-full border rounded-lg p-2 mt-1 focus:ring-2 focus:ring-blue-300"
+              className="resize-none w-full border rounded-lg p-2 mt-1 focus:ring-2 border-[#cdcdcd] focus:ring-blue-300"
+              rows={3} // Đặt số dòng hiển thị mặc định
             />
           </div>
 
@@ -162,7 +165,7 @@ function Form() {
             <label className="font-semibold">Model Used</label>
             <select
               onChange={(e) => setModelUsed(e.target.value)}
-              className="w-full border rounded-lg p-2 mt-1 focus:ring-2 focus:ring-blue-300"
+              className="w-full border rounded-lg border-[#cdcdcd] p-2 mt-1 focus:ring-2 focus:ring-blue-300"
               required
             >
               <option value="">Select a model</option>
@@ -172,6 +175,10 @@ function Form() {
                 </option>
               ))}
             </select>
+          </div>
+          <div>
+            <label className="font-semibold">Tag</label>
+            <Tag selectedTags={selectedTags} setSelectedTags={setSelectedTags} />
           </div>
         </div>
       </div>

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { doc, getDoc, getFirestore } from "firebase/firestore";
 import app from "../Shared/firebaseConfig";
-import UserInfo from '../components/UserInfo';
+import UserInfo from '../components/profile/UserInfo';
 import PinListUser from '../components/Pins/PinListUser';
 
 function Profile({ params }) {

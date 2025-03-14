@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
   try {
-    const { uid, description, prompt_used, mid, image_url, title } = await req.json();
+    const { uid, description, prompt_used, mid, image_url, title, tags } = await req.json();
 
     if (!uid || !description || !mid || !image_url || !title) {
       return NextResponse.json({ message: "Missing required fields" }, { status: 400 });
@@ -17,7 +17,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "uid and mid must be integers" }, { status: 400 });
     }
 
-    // ✅ Check if the model exists before inserting
+    // Check if the model exists before inserting
     const modelExists = await prisma.model_Category.findUnique({
       where: { mid: modelId },
     });
@@ -26,7 +26,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Model ID (mid) not found" }, { status: 400 });
     }
 
-    // ✅ Create post
+    // Create post
     const newPost = await prisma.post.create({
       data: {
         uid: userId,
@@ -37,6 +37,19 @@ export async function POST(req: Request) {
         title,
       },
     });
+
+    // Create post_tags
+    if (tags && tags.length > 0) {
+      const postTags = tags.map((tag: { tid: number }) => ({
+        pid: newPost.pid,
+        tid: tag.tid,
+      }));
+      
+
+      await prisma.post_tags.createMany({
+        data: postTags,
+      });
+    }
 
     return NextResponse.json(newPost, { status: 201 });
   } catch (error) {

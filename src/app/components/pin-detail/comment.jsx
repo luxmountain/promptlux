@@ -1,17 +1,38 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-export default function ReadComment() {
-  const comments = [
-    { author: 'Nathan', text: 'abasdfasjdklfj' },
-    { author: 'John', text: 'Nice post!' },
-  ];
-
-  const [heartClicked, setHeartClicked] = useState(Array(comments.length).fill(false));
-  const [dotsClicked, setDotsClicked] = useState(Array(comments.length).fill(false));
-  const [likes, setLikes] = useState(Array(comments.length).fill(0));
+export default function Comment() {
+  const [comments, setComments] = useState([]);
+  const [heartClicked, setHeartClicked] = useState([]);
+  const [dotsClicked, setDotsClicked] = useState([]);
+  const [likes, setLikes] = useState([]);
   const [replyIndex, setReplyIndex] = useState(null);
   const [replyText, setReplyText] = useState("");
+
+  useEffect(() => {
+    // Fake API call
+    const fetchComments = async () => {
+      const data = [
+        {
+          "cid": 1,
+          "comment": "Amazing AI insights!",
+          "created_at": "2025-03-10T04:52:47.059Z",
+          "edited_at": null,
+          "user": {
+            "uid": 1,
+            "username": "johndoe",
+            "avatar_image": "https://i.pinimg.com/474x/78/10/f9/7810f9385a56ee928b90d3903bf4f934.jpg"
+          }
+        }
+      ];
+      setComments(data);
+      setHeartClicked(Array(data.length).fill(false));
+      setDotsClicked(Array(data.length).fill(false));
+      setLikes(Array(data.length).fill(0));
+    };
+
+    fetchComments();
+  }, []);
 
   const handleHeartClick = (index) => {
     const updatedHeartClicked = [...heartClicked];
@@ -35,17 +56,17 @@ export default function ReadComment() {
   return (
     <div className="max-h-96 overflow-y-auto pr-2">
       {comments.map((comment, index) => (
-        <div key={index} className="mb-8 bg-white shadow rounded-lg">
+        <div key={comment.cid} className="mb-8 bg-white shadow rounded-lg p-4">
           <div className="flex items-center space-x-3">
-            <img src="/avatar-small.png" alt="Avatar" className="w-8 h-8 rounded-full" />
+            <img src={comment.user.avatar_image} alt="Avatar" className="w-8 h-8 rounded-full" />
             <div className="flex flex-col">
-              <span className="font-semibold">{comment.author}</span>
-              <span>{comment.text}</span>
+              <span className="font-semibold">{comment.user.username}</span>
+              <span>{comment.comment}</span>
             </div>
           </div>
 
           <div className="flex items-center mt-2 text-sm text-gray-600 space-x-4">
-            <span>1w</span>
+            <span>{new Date(comment.created_at).toLocaleDateString()}</span>
             <button className="hover:text-gray-800" onClick={() => handleReplyClick(index)}>Reply</button>
 
             <div className="flex items-center space-x-1">
@@ -78,9 +99,7 @@ export default function ReadComment() {
                   value={replyText}
                   onChange={(e) => setReplyText(e.target.value)}
                 />
-                <button className="p-2">
-                  😊
-                </button>
+                <button className="p-2">😊</button>
               </div>
 
               <div className="flex justify-end space-x-2">

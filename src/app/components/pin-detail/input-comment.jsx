@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 
-const Comment = () => {
+const InputComment = () => {
   const [message, setMessage] = useState("");
   const [active, setActive] = useState({
     icon: false,
@@ -93,4 +93,4 @@ const Comment = () => {
   );
 };
 
-export default Comment;
+export default InputComment;

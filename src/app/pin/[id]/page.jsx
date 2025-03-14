@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Avatar } from "@mui/material";
 import { useSession } from "next-auth/react";
-import ReadComment from "../../components/pin-detail/input-comment";
+import InputComment from "../../components/pin-detail/input-comment";
 import PostActions from "../../components/pin-detail/actions";
 import Comment from "../../components/pin-detail/comment";
 import Picture from "../../components/pin-detail/picture";
@@ -79,7 +79,7 @@ function PostDetail() {
               {post?.comments?.map((comment) => (
                 <Comment key={comment.id} content={comment.content} />
               ))}
-              <ReadComment />
+              <InputComment />
             </div>
           </div>
         </div>

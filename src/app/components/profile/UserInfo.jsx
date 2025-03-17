@@ -2,6 +2,8 @@ import React from "react";
 import Image from "next/image";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import ShareButton from "../action/ShareButton";
+import { Share } from "next/font/google";
 
 function UserInfo({ userInfo }) {
   const router = useRouter();
@@ -25,6 +27,9 @@ function UserInfo({ userInfo }) {
       <h2 className="text-gray-400">{userInfo.email}</h2>
 
       <div className="flex gap-4 mb-2">
+        <div className="p-2 px-3 font-semibold mt-5 rounded-full cursor-pointer">
+          <ShareButton link={window.location.href} message={"Check this user profile!"}/>
+        </div>
         <button className="bg-gray-200 p-2 px-3 font-semibold mt-5 rounded-full cursor-pointer">
           Share
         </button>

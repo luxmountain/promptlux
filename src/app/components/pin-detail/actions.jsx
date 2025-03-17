@@ -1,10 +1,10 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import ShareButton from "../action/ShareButton";
 
 const PostActions = ({ postId, userId, imageUrl }) => {
   const [isHeartClicked, setIsHeartClicked] = useState(false);
   const [likes, setLikes] = useState(0);
-  const [isShareClicked, setIsShareClicked] = useState(false);
   const [isDownloadClicked, setIsDownloadClicked] = useState(false);
   const [isSaveClicked, setIsSaveClicked] = useState(false);
   const fetchLikes = async () => {
@@ -26,15 +26,8 @@ const PostActions = ({ postId, userId, imageUrl }) => {
       console.error("Error fetching likes:", error);
     }
   };
-  const postUrl = `${window.location.origin}/post/${postId}`;
-  const handleCopyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(postUrl);
-      alert("Link copied to clipboard!");
-    } catch (err) {
-      console.error("Failed to copy: ", err);
-    }
-  };
+  const postUrl = `${window.location.origin}/pin/${postId}`;
+
 
   const handleDownload = () => {
     setIsDownloadClicked(true);
@@ -114,46 +107,7 @@ const PostActions = ({ postId, userId, imageUrl }) => {
         <span className="text-lg font-semibold">{likes}</span>
 
         {/* Share Button */}
-        <button
-          onClick={() => setIsShareClicked(!isShareClicked)}
-          className={`w-10 h-10 flex items-center justify-center rounded-full transition ${
-            isShareClicked ? "bg-black text-white" : "hover:bg-gray-200"
-          }`}
-        >
-          <svg width="30px" height="30px" viewBox="0 0 24 24" fill="none"
-            stroke={isShareClicked ? "#ffffff" : "#000000"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 5v8.5M15 7l-3-3-3 3m-4 5v5a2 2 0 002 2h10a2 2 0 002-2v-5" />
-          </svg>
-        </button>
-
-        {/* Share Pop-up */}
-        {isShareClicked && (
-          <div className="absolute top-50 left-220 bg-white shadow-lg rounded-lg p-4 w-56">
-            <p className="text-lg font-semibold mb-2">Share</p>
-            <button
-              onClick={handleCopyLink}
-              className="w-full text-left py-2 px-3 rounded-lg hover:bg-gray-100 flex items-center"
-            >
-              📋 Copy Link
-            </button>
-            <a
-              href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}&quote=Check%20out%20this%20post!`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block w-full text-left py-2 px-3 rounded-lg hover:bg-gray-100 flex items-center"
-            >
-              📘 Facebook
-            </a>
-            <a
-              href={`https://t.me/share/url?url=${encodeURIComponent(postUrl)}&text=${encodeURIComponent(postUrl)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block w-full text-left py-2 px-3 rounded-lg hover:bg-gray-100 flex items-center"
-            >
-              ✈️ Telegram
-            </a>
-          </div>
-        )}
+        <ShareButton link={postUrl} message={"🔥 Check out this amazing post! 🚀"}/>
 
         {/* Download Button */}
         <button

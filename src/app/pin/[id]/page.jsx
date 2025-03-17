@@ -26,23 +26,7 @@ function PostDetail() {
       setIsLoginModalOpen(true);
       return;
     }
-
-    const fetchUserId = async () => {
-      try {
-        const res = await fetch("/api/users/getId", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: session.user.email }),
-        });
-
-        if (!res.ok) throw new Error("Không tìm thấy UID");
-
-        const data = await res.json();
-        setUserId(data.uid);
-      } catch (err) {
-        console.error("Lỗi lấy UID:", err);
-      }
-    };
+    setUserId(session?.user?.uid || null);
 
     const fetchPost = async () => {
       try {
@@ -58,7 +42,6 @@ function PostDetail() {
       }
     };
 
-    fetchUserId();
     fetchPost();
   }, [session, status, postId]);
 

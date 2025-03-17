@@ -34,27 +34,6 @@ function Form() {
     fetchModels();
   }, []);
 
-  const fetchUserUid = async (email) => {
-    try {
-      const response = await fetch(`/api/users/getId`, {
-        method: "POST", 
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Error fetching user UID");
-      }
-
-      return data.uid;
-    } catch (error) {
-      console.error("Error fetching UID:", error);
-      return null;
-    }
-  };
-
   const onSave = async () => {
     if (!session) {
       setIsLoginModalOpen(true); // Mở login modal
@@ -67,7 +46,7 @@ function Form() {
       const email = session.user.email;
       console.log("Fetching UID for:", email);
       
-      const uid = await fetchUserUid(email);
+      const uid = session.user.uid;
       console.log("UID:", uid);
 
       if (!uid) {

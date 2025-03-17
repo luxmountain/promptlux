@@ -31,9 +31,9 @@ function UserInfo({ userInfo }) {
           <ShareButton link={window.location.href} message={"Check this user profile!"}/>
         </div>
         <button className="bg-gray-200 p-2 px-3 font-semibold mt-5 rounded-full cursor-pointer">
-          Share
+          Saved
         </button>
-
+        
         {session?.user?.email === userInfo.email && (
           <button
             className="bg-gray-200 p-2 px-3 font-semibold mt-5 rounded-full cursor-pointer"

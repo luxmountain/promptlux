@@ -28,14 +28,13 @@ export const authOptions = {
         }
 
         const isValidPassword = await bcrypt.compare(credentials.password, user.password);
-
         if (!isValidPassword) {
           throw new Error("Invalid email or password");
         }
 
         return {
-          id: user.uid, // Trả về uid từ model User
-          name: `${user.first_name} ${user.last_name}`, // Use first_name and last_name
+          id: user.uid, // Sử dụng uid thay vì id
+          name: `${user.first_name} ${user.last_name}`,
           email: user.email,
           image: user.avatar_image,
         };
@@ -58,22 +57,38 @@ export const authOptions = {
               last_name: profile.name.split(" ").slice(1).join(" "),
               avatar_image: user.image,
               username: profile.login,
-              password: "", // GitHub users won't have a password
+              password: "", // Tài khoản GitHub không có password
             },
           });
         }
       }
       return true;
     },
-    async session({ session, token }) {
-      const user = await prisma.user.findUnique({
-        where: { email: session.user.email },
-      });
+    async session({ session }) {
+      if (!session.user?.email) return session;
+
+      try {
+        const res = await fetch(`${process.env.NEXTAUTH_URL}/api/users/getId`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: session.user.email }),
+        });
+
+        if (!res.ok) {
+          console.error("Failed to fetch UID:", await res.json());
+          return session;
+        }
+
+        const data = await res.json();
+        session.user.uid = data.uid; // Thêm uid vào session.user
+      } catch (error) {
+        console.error("Error fetching UID:", error);
+      }
+
       return session;
     },
   },
 };
 
 const handler = NextAuth(authOptions);
-
 export { handler as GET, handler as POST };

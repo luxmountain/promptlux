@@ -10,20 +10,10 @@ function PinListUser() {
 
   useEffect(() => {
     const fetchUserPins = async () => {
-      if (!session?.user?.email) return;
+      const uid = session?.user?.uid;
+      if (!uid) return;
 
       try {
-        const uidResponse = await fetch("/api/users/getId", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: session.user.email }),
-        });
-
-        const uidData = await uidResponse.json();
-        if (!uidResponse.ok) throw new Error(uidData.message || "Failed to fetch UID");
-
-        const { uid } = uidData;
-
         const pinsResponse = await fetch("/api/pins/getUserPins", {
           method: "POST",
           headers: { "Content-Type": "application/json" },

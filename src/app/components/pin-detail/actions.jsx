@@ -1,11 +1,11 @@
 "use client";
 import React, { useEffect, useState } from "react";
 
-const PostActions = ({ postId, userId }) => {
+const PostActions = ({ postId, userId, imageUrl }) => {
   const [isHeartClicked, setIsHeartClicked] = useState(false);
   const [likes, setLikes] = useState(0);
   const [isShareClicked, setIsShareClicked] = useState(false);
-  const [isDotsClicked, setIsDotsClicked] = useState(false);
+  const [isDownloadClicked, setIsDownloadClicked] = useState(false);
   const [isSaveClicked, setIsSaveClicked] = useState(false);
   const fetchLikes = async () => {
     try {
@@ -26,7 +26,30 @@ const PostActions = ({ postId, userId }) => {
       console.error("Error fetching likes:", error);
     }
   };
+  const postUrl = `${window.location.origin}/post/${postId}`;
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(postUrl);
+      alert("Link copied to clipboard!");
+    } catch (err) {
+      console.error("Failed to copy: ", err);
+    }
+  };
 
+  const handleDownload = () => {
+    setIsDownloadClicked(true);
+    const apiUrl = `/api/download?url=${encodeURIComponent(imageUrl)}`;
+    // Tạo một thẻ <a> ẩn để tải ảnh
+    const link = document.createElement("a");
+    link.href = apiUrl;
+    link.download = "downloaded_image.jpg"; // Tên file khi tải xuống
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    setTimeout(() => setIsDownloadClicked(false), 200); // Reset trạng thái sau khi click
+  };
+  
   useEffect(() => {
     fetchLikes();
   }, [postId]);
@@ -103,18 +126,52 @@ const PostActions = ({ postId, userId }) => {
           </svg>
         </button>
 
-        {/* Dots Button */}
+        {/* Share Pop-up */}
+        {isShareClicked && (
+          <div className="absolute top-50 left-220 bg-white shadow-lg rounded-lg p-4 w-56">
+            <p className="text-lg font-semibold mb-2">Share</p>
+            <button
+              onClick={handleCopyLink}
+              className="w-full text-left py-2 px-3 rounded-lg hover:bg-gray-100 flex items-center"
+            >
+              📋 Copy Link
+            </button>
+            <a
+              href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}&quote=Check%20out%20this%20post!`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block w-full text-left py-2 px-3 rounded-lg hover:bg-gray-100 flex items-center"
+            >
+              📘 Facebook
+            </a>
+            <a
+              href={`https://t.me/share/url?url=${encodeURIComponent(postUrl)}&text=${encodeURIComponent(postUrl)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block w-full text-left py-2 px-3 rounded-lg hover:bg-gray-100 flex items-center"
+            >
+              ✈️ Telegram
+            </a>
+          </div>
+        )}
+
+        {/* Download Button */}
         <button
-          onClick={() => setIsDotsClicked(!isDotsClicked)}
+          onClick={handleDownload}
           className={`w-10 h-10 flex items-center justify-center rounded-full transition ${
-            isDotsClicked ? "bg-black text-white" : "hover:bg-gray-200"
+            isDownloadClicked ? "bg-black text-white" : "hover:bg-gray-200"
           }`}
         >
-          <svg width="25px" height="25px" viewBox="0 0 24 24" fill="none">
-            <circle cx="5" cy="12" r="2" fill={isDotsClicked ? "#fff" : "#000"} />
-            <circle cx="12" cy="12" r="2" fill={isDotsClicked ? "#fff" : "#000"} />
-            <circle cx="19" cy="12" r="2" fill={isDotsClicked ? "#fff" : "#000"} />
-          </svg>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="currentColor"
+          height="24"
+          width="24"
+          viewBox="0 0 24 24"
+        >
+          <path d="M12 16L7 11h3V3h4v8h3z" />
+          <path d="M5 18h14v2H5z" />
+        </svg>
         </button>
       </div>
 

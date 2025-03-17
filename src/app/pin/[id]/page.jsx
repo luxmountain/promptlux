@@ -82,7 +82,7 @@ function PostDetail() {
             <Picture imageUrl={post?.image_url || "https://via.placeholder.com/500"} />
 
             <div className="w-1/2 flex flex-col gap-4 p-4">
-              <PostActions postId={Number(postId)} userId={userId} />
+              <PostActions postId={Number(postId)} userId={userId} imageUrl={post?.image_url || "https://via.placeholder.com/500"}/>
 
               <div className="space-y-2">
                 <h6 className="text-lg font-semibold">{post?.title || "Không có tiêu đề"}</h6>

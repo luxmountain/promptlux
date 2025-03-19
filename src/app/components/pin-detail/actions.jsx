@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import ShareButton from "../action/ShareButton";
 import SaveButton from "../action/SaveButton";
 
-const PostActions = ({ postId, userId, imageUrl }) => {
+const PostActions = ({ postOwnerId, postId, userId, imageUrl }) => {
   const [isHeartClicked, setIsHeartClicked] = useState(false);
   const [likes, setLikes] = useState(0);
   const [isDownloadClicked, setIsDownloadClicked] = useState(false);
@@ -131,7 +131,7 @@ const PostActions = ({ postId, userId, imageUrl }) => {
       </div>
 
       {/* Right Section */}
-      <SaveButton pid={postId} uid={userId}/>
+      <SaveButton pid={postId} uid={userId} postOwnerId={postOwnerId} />
     </div>
   );
 };

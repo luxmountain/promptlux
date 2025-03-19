@@ -34,6 +34,7 @@ function PostDetail() {
         if (!res.ok) throw new Error("Không thể tải bài viết");
 
         const data = await res.json();
+        console.log(data); // data.uid
         setPost(data);
       } catch (err) {
         setError(err.message);
@@ -65,7 +66,7 @@ function PostDetail() {
             <Picture imageUrl={post?.image_url || "https://via.placeholder.com/500"} />
 
             <div className="w-1/2 flex flex-col gap-4 p-4">
-              <PostActions postId={Number(postId)} userId={userId} imageUrl={post?.image_url || "https://via.placeholder.com/500"}/>
+              <PostActions postOwnerId={post?.uid} postId={Number(postId)} userId={userId} imageUrl={post?.image_url || "https://via.placeholder.com/500"}/>
 
               <div className="space-y-2">
                 <h6 className="text-lg font-semibold">{post?.title || "Không có tiêu đề"}</h6>

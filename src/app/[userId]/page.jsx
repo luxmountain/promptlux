@@ -1,21 +1,21 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import { doc, getDoc, getFirestore } from "firebase/firestore";
 import app from "../Shared/firebaseConfig";
-import UserInfo from '../components/profile/UserInfo';
-import PinListUser from '../components/Pins/PinListUser';
-import SavedPinList from '../components/Pins/SavedPinList';
+import UserInfo from "../components/profile/UserInfo";
+import PinListUser from "../components/Pins/PinListUser";
+import SavedPinList from "../components/Pins/SavedPinList";
 
 function Profile({ params }) {
   const db = getFirestore(app);
   const [userInfo, setUserInfo] = useState();
-  const [activeTab, setActiveTab] = useState('created'); // Default tab
-  
+  const [activeTab, setActiveTab] = useState("created");
+
   useEffect(() => {
     const fetchParams = async () => {
       const unwrappedParams = await params;
       if (unwrappedParams) {
-        getUserInfo(unwrappedParams.userId.replace('%40', '@'));
+        getUserInfo(unwrappedParams.userId.replace("%40", "@"));
       }
     };
     fetchParams();
@@ -28,20 +28,20 @@ function Profile({ params }) {
     if (docSnap.exists()) {
       setUserInfo(docSnap.data());
     } else {
-      // docSnap.data() will be undefined in this case
       console.log("No such document!");
     }
   };
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
+    localStorage.setItem("activeTab", tab); // Lưu vào localStorage
   };
 
   return (
     <div>
       {userInfo ? <UserInfo userInfo={userInfo} onTabChange={handleTabChange} /> : null}
-      {activeTab === 'created' && <PinListUser />}
-      {activeTab === 'saved' && <SavedPinList />}
+      {activeTab === "created" && <PinListUser />}
+      {activeTab === "saved" && <SavedPinList />}
     </div>
   );
 }

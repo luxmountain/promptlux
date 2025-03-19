@@ -1,10 +1,12 @@
 "use client";
 import React, { useEffect, useState } from "react";
 
-function SaveButton({ pid, uid }) {
+function SaveButton({ pid, uid, postOwnerId }) {
   const [isSaveClicked, setIsSaveClicked] = useState(false);
 
   useEffect(() => {
+    if (uid === postOwnerId) return; // Không cần check nếu là bài đăng của chính user
+
     const checkIfSaved = async () => {
       try {
         const response = await fetch(`/api/pins/getSavedPins/check`, {
@@ -23,7 +25,7 @@ function SaveButton({ pid, uid }) {
     };
 
     checkIfSaved();
-  }, [pid, uid]);
+  }, [pid, uid, postOwnerId]);
 
   const handleSaveClick = async () => {
     try {
@@ -58,6 +60,11 @@ function SaveButton({ pid, uid }) {
       console.error("Error handling save:", error);
     }
   };
+
+  // Ẩn nút nếu user là chủ bài đăng
+  if (uid === postOwnerId) {
+    return null;
+  }
 
   return (
     <div className="flex items-center space-x-4">

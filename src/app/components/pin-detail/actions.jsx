@@ -1,12 +1,13 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import ShareButton from "../action/ShareButton";
+import SaveButton from "../action/SaveButton";
 
 const PostActions = ({ postId, userId, imageUrl }) => {
   const [isHeartClicked, setIsHeartClicked] = useState(false);
   const [likes, setLikes] = useState(0);
   const [isDownloadClicked, setIsDownloadClicked] = useState(false);
-  const [isSaveClicked, setIsSaveClicked] = useState(false);
+
   const fetchLikes = async () => {
     try {
       const response = await fetch("/api/like/getLike", {
@@ -130,17 +131,7 @@ const PostActions = ({ postId, userId, imageUrl }) => {
       </div>
 
       {/* Right Section */}
-      <div className="flex items-center space-x-4">
-        {/* Save Button */}
-        <button
-          onClick={() => setIsSaveClicked(!isSaveClicked)}
-          className={`px-4 py-2 rounded-full transition ${
-            isSaveClicked ? "bg-black text-white" : "bg-red-500 text-white"
-          }`}
-        >
-          {isSaveClicked ? "Saved" : "Save"}
-        </button>
-      </div>
+      <SaveButton pid={postId} uid={userId}/>
     </div>
   );
 };

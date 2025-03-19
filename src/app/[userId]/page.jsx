@@ -4,11 +4,13 @@ import { doc, getDoc, getFirestore } from "firebase/firestore";
 import app from "../Shared/firebaseConfig";
 import UserInfo from '../components/profile/UserInfo';
 import PinListUser from '../components/Pins/PinListUser';
+import SavedPinList from '../components/Pins/SavedPinList';
 
 function Profile({ params }) {
   const db = getFirestore(app);
   const [userInfo, setUserInfo] = useState();
-
+  const [activeTab, setActiveTab] = useState('created'); // Default tab
+  
   useEffect(() => {
     const fetchParams = async () => {
       const unwrappedParams = await params;
@@ -31,10 +33,15 @@ function Profile({ params }) {
     }
   };
 
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+  };
+
   return (
     <div>
-      {userInfo ? <UserInfo userInfo={userInfo} /> : null}
-      <PinListUser />
+      {userInfo ? <UserInfo userInfo={userInfo} onTabChange={handleTabChange} /> : null}
+      {activeTab === 'created' && <PinListUser />}
+      {activeTab === 'saved' && <SavedPinList />}
     </div>
   );
 }

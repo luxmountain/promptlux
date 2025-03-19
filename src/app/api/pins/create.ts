@@ -55,7 +55,7 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error("Error creating post:", error);
     return NextResponse.json(
-      { message: "Error creating post", error: error.message },
+      { message: "Error saving post", error: (error instanceof Error) ? error.message : "Unknown error" },
       { status: 500 }
     );
   }

@@ -3,9 +3,8 @@ import Image from "next/image";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import ShareButton from "../action/ShareButton";
-import { Share } from "next/font/google";
 
-function UserInfo({ userInfo }) {
+function UserInfo({ userInfo, onTabChange }) {
   const router = useRouter();
   const { data: session } = useSession();
 
@@ -30,10 +29,18 @@ function UserInfo({ userInfo }) {
         <div className="p-2 px-3 font-semibold mt-5 rounded-full cursor-pointer">
           <ShareButton link={window.location.href} message={"Check this user profile!"}/>
         </div>
-        <button className="bg-gray-200 p-2 px-3 font-semibold mt-5 rounded-full cursor-pointer">
+        <button
+          className="bg-gray-200 p-2 px-3 font-semibold mt-5 rounded-full cursor-pointer"
+          onClick={() => onTabChange('saved')}
+        >
           Saved
         </button>
-        
+        <button
+          className="bg-gray-200 p-2 px-3 font-semibold mt-5 rounded-full cursor-pointer"
+          onClick={() => onTabChange('created')}
+        >
+          Created
+        </button>
         {session?.user?.email === userInfo.email && (
           <button
             className="bg-gray-200 p-2 px-3 font-semibold mt-5 rounded-full cursor-pointer"

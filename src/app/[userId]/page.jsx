@@ -38,7 +38,6 @@ function Profile() {
           body: JSON.stringify({ uid }),
         });
         const userData = await userRes.json();
-        console.log(userData);
 
         if (!userRes.ok) {
           throw new Error(userData.error || "Không thể lấy thông tin user");

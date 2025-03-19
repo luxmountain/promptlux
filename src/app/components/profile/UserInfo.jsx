@@ -1,3 +1,4 @@
+"use client";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { signOut, useSession } from "next-auth/react";
@@ -7,6 +8,8 @@ import FollowListPopup from "../popup/FollowList";
 
 function UserInfo({ userInfo, onTabChange }) {
   const { data: session } = useSession();
+  console.log("Session", session);
+  console.log("UserInfo", userInfo);
   const [followerCount, setFollowerCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
   const [followers, setFollowers] = useState([]);
@@ -56,7 +59,6 @@ function UserInfo({ userInfo, onTabChange }) {
   const closePopup = () => {
     setPopupData({ isOpen: false, users: [], title: "" });
   };
-
   return (
     <div className="flex flex-col items-center mt-8">
       <Image
@@ -96,14 +98,17 @@ function UserInfo({ userInfo, onTabChange }) {
         >
           Created
         </button>
-        <FollowButton userInfo={userInfo} />
-        {session?.user?.email === userInfo.email && (
+        {session?.user?.uid === userInfo.uid ? (
+          // Nếu là chính chủ thì hiện nút Logout, ẩn Follow
           <button
             className="bg-gray-200 p-2 px-3 font-semibold mt-5 rounded-full cursor-pointer"
             onClick={onLogoutClick}
           >
             Logout
           </button>
+        ) : (
+          // Nếu không phải chính chủ thì hiện Follow, ẩn Logout
+          <FollowButton userInfo={userInfo} />
         )}
       </div>
 

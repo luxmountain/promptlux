@@ -20,6 +20,12 @@ function PostDetail() {
   const [error, setError] = useState("");
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
+  const handleNavigate = () => {
+    if (post?.user?.username) {
+      router.push(`/${post.user.username}`);
+    }
+  };
+
   useEffect(() => {
     if (status === "loading") return;
     if (!session) {
@@ -70,7 +76,7 @@ function PostDetail() {
 
               <div className="space-y-2">
                 <h6 className="text-lg font-semibold">{post?.title || "Không có tiêu đề"}</h6>
-                <div className="flex items-center gap-2">
+                <div onClick={handleNavigate} className="cursor-pointer flex items-center gap-2">
                   <Avatar src={post?.user?.avatar_image || "/avatar-small.png"} className="w-6 h-6" />
                   <span className="font-bold">{post?.user?.username || "Người dùng"}</span>
                 </div>

@@ -71,7 +71,7 @@ export const authOptions = {
         const res = await fetch(`${process.env.NEXTAUTH_URL}/api/users/getId`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: session.user.email }),
+          body: JSON.stringify({ username: session.user.name }),
         });
 
         if (!res.ok) {

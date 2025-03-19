@@ -8,7 +8,8 @@ import FollowListPopup from "../popup/FollowList";
 
 function UserInfo({ userInfo, onTabChange }) {
   const { data: session } = useSession();
-
+  console.log(userInfo);
+  console.log(session);
   const [followerCount, setFollowerCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
   const [followers, setFollowers] = useState([]);

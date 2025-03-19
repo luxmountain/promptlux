@@ -1,15 +1,16 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Comment({ comments = [], userId }) {
-  const [heartClicked, setHeartClicked] = useState({});
-  const [likes, setLikes] = useState({});
   const [userDetails, setUserDetails] = useState({});
   const [showPopup, setShowPopup] = useState(null);
   const [commentList, setCommentList] = useState(comments);
   const [editingComment, setEditingComment] = useState(null);
   const [editText, setEditText] = useState("");
-
+  
+  const router = useRouter();
+  
   useEffect(() => {
     async function fetchUserData() {
       const uniqueUserIds = [...new Set(commentList.map((comment) => comment.uid))];
@@ -88,6 +89,13 @@ export default function Comment({ comments = [], userId }) {
     }
   };
 
+  const handleNavigate = (username) => {
+    console.log(username);
+    if (username) {
+      router.push(`/${username}`);
+    }
+  };
+
   return (
     <div className="max-h-96 overflow-y-auto pr-2">
       {commentList.length === 0 ? (
@@ -100,13 +108,13 @@ export default function Comment({ comments = [], userId }) {
             <div key={comment.cid} className="mb-8 bg-white shadow rounded-lg p-4">
               <div className="flex items-center space-x-3">
                 {user.avatar_image ? (
-                  <img src={user.avatar_image} alt="Avatar" className="w-8 h-8 rounded-full" />
+                  <img onClick={() => handleNavigate(user.username)}  src={user.avatar_image} alt="Avatar" className="cursor-pointer w-8 h-8 rounded-full" />
                 ) : (
                   <div className="w-8 h-8 bg-gray-300 rounded-full animate-pulse"></div>
                 )}
 
                 <div className="flex flex-col w-full">
-                  <span className="font-semibold">
+                  <span className="font-semibold cursor-pointer" onClick={() => handleNavigate(user.username)}>
                     {user.username ? user.username : "Loading..."}
                   </span>
 

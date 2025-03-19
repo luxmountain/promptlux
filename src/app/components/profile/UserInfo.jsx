@@ -23,6 +23,11 @@ function UserInfo({ userInfo, onTabChange }) {
       <h2 className="text-[30px] font-semibold">{userInfo.userName}</h2>
       <h2 className="text-gray-400">{userInfo.email}</h2>
 
+      <div className="flex gap-4 mt-">
+        <h3 className="text-gray-700">following</h3>
+        <h3 className="text-gray-700">follower</h3>
+      </div>
+
       <div className="flex gap-4 mb-2">
         <div className="p-2 px-3 font-semibold mt-5 rounded-full cursor-pointer">
           <ShareButton link={typeof window !== "undefined" ? window.location.href : ""} message={"Check this user profile!"} />

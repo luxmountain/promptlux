@@ -1,40 +1,68 @@
-"use client"
-import React, { useState, useEffect } from 'react'
-import { doc, getDoc, getFirestore } from "firebase/firestore";
-import app from "../Shared/firebaseConfig";
-import UserInfo from '../components/UserInfo';
-import PinList from '../components/Pins/PinList';
+"use client";
+import React, { useState, useEffect } from "react";
+import { useParams } from "next/navigation"; // Lấy userId từ URL
+import UserInfo from "../components/profile/UserInfo";
+import PinListUser from "../components/Pins/PinListUser";
+import SavedPinList from "../components/Pins/SavedPinList";
 
-function Profile({params}) {
-    const db = getFirestore(app);
-    const [userInfo, setUserInfo] = useState();
+function Profile() {
+  const params = useParams();
+  const [userInfo, setUserInfo] = useState(null);
+  const [activeTab, setActiveTab] = useState("created");
 
-    useEffect(() => {
-        if(params){
-            getUserInfo(params.userId.replace('%40', '@'));
+  useEffect(() => {
+    if (!params?.userId) return; // Thay vì userId, ta lấy userId từ URL
+
+    const fetchUserInfo = async () => {
+      try {
+        const username = decodeURIComponent(params.userId); // Chuyển về chữ thường
+        // Gọi API mới để lấy UID theo userId
+        const res = await fetch("/api/users/getId", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username }), // Gửi userId đã được lowercase
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error || "Không thể lấy UID");
         }
-    }, [params])
 
-    const getUserInfo = async (email) => {
-        const docRef = doc(db, "user", email);
-        const docSnap = await getDoc(docRef);
-        
-        if (docSnap.exists()) {
-          setUserInfo(docSnap.data());
-        } else {
-          // docSnap.data() will be undefined in this case
-          console.log("No such document!");
+        const uid = data.uid;
+
+        // Gọi API để lấy thông tin user theo UID
+        const userRes = await fetch("/api/users/getUserInfo", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ uid }),
+        });
+
+        const userData = await userRes.json();
+        if (!userRes.ok) {
+          throw new Error(userData.error || "Không thể lấy thông tin user");
         }
-    }
 
-    return (
-        <div>
-            {userInfo?
-                <UserInfo userInfo = {userInfo}/>
-            : null}
-            <PinList />
-        </div>
-    )
+        setUserInfo(userData);
+      } catch (error) {
+        console.error("Lỗi khi lấy thông tin user:", error);
+      }
+    };
+
+    fetchUserInfo();
+  }, [params?.userId]); // Theo dõi userId thay vì userId
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    localStorage.setItem("activeTab", tab);
+  };
+
+  return (
+    <div>
+      {userInfo ? <UserInfo userInfo={userInfo} onTabChange={handleTabChange} /> : null}
+      {activeTab === "created" && <PinListUser uid={userInfo?.uid} />}
+      {activeTab === "saved" && <SavedPinList uid={userInfo?.uid} />}
+    </div>
+  );
 }
 
-export default Profile
+export default Profile;

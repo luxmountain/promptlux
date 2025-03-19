@@ -1,0 +1,120 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  email        String      @unique
+  avatar_image String?
+  bio          String?
+  created_at   DateTime    @default(now())
+  first_name   String?
+  last_name    String?
+  password     String
+  username     String      @unique
+  uid          Int         @id @default(autoincrement())
+  comments     Comment[]
+  following    Follower[]  @relation("followed")
+  followers    Follower[]  @relation("following")
+  likes        Like[]
+  posts        Post[]
+  SavedPost    SavedPost[]
+  seen         Seen[]
+}
+
+model Follower {
+  created_at        DateTime @default(now())
+  following_user_id Int
+  followed_user_id  Int
+  followed          User     @relation("followed", fields: [followed_user_id], references: [uid])
+  following         User     @relation("following", fields: [following_user_id], references: [uid])
+
+  @@id([following_user_id, followed_user_id])
+}
+
+model Like {
+  pid        Int
+  created_at DateTime @default(now())
+  uid        Int
+  post       Post     @relation(fields: [pid], references: [pid])
+  user       User     @relation(fields: [uid], references: [uid])
+
+  @@id([uid, pid])
+}
+
+model Seen {
+  pid        Int
+  created_at DateTime @default(now())
+  uid        Int
+  post       Post     @relation(fields: [pid], references: [pid])
+  user       User     @relation(fields: [uid], references: [uid])
+
+  @@id([uid, pid])
+}
+
+model Comment {
+  cid                   Int       @id @default(autoincrement())
+  pid                   Int
+  created_at            DateTime  @default(now())
+  comment               String
+  comment_replied_to_id Int?
+  edited_at             DateTime?
+  uid                   Int
+  post                  Post      @relation(fields: [pid], references: [pid])
+  user                  User      @relation(fields: [uid], references: [uid])
+}
+
+model Post {
+  description String
+  prompt_used String
+  created_at  DateTime       @default(now())
+  edited_at   DateTime?
+  mid         Int
+  pid         Int            @id @default(autoincrement())
+  seen_count  Int            @default(0)
+  image_url   String?
+  uid         Int
+  title       String?
+  comments    Comment[]
+  likes       Like[]
+  model       Model_Category @relation(fields: [mid], references: [mid])
+  user        User           @relation(fields: [uid], references: [uid])
+  post_tags   Post_tags[]
+  SavedPost   SavedPost[]
+  seen        Seen[]
+}
+
+model Post_tags {
+  pid  Int
+  tid  Int
+  post Post @relation(fields: [pid], references: [pid])
+  tag  Tags @relation(fields: [tid], references: [tid])
+
+  @@id([pid, tid])
+}
+
+model Tags {
+  tid         Int         @id @default(autoincrement())
+  tag_content String
+  post_tags   Post_tags[]
+}
+
+model Model_Category {
+  mid        Int    @id @default(autoincrement())
+  model_name String
+  posts      Post[]
+}
+
+model SavedPost {
+  uid        Int
+  pid        Int
+  created_at DateTime? @default(now()) @db.Timestamp(6)
+  Post       Post      @relation(fields: [pid], references: [pid], onDelete: Cascade, onUpdate: NoAction)
+  User       User      @relation(fields: [uid], references: [uid], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([uid, pid])
+}

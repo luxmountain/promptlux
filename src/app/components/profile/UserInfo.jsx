@@ -8,8 +8,7 @@ import FollowListPopup from "../popup/FollowList";
 
 function UserInfo({ userInfo, onTabChange }) {
   const { data: session } = useSession();
-  console.log("Session", session);
-  console.log("UserInfo", userInfo);
+
   const [followerCount, setFollowerCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
   const [followers, setFollowers] = useState([]);
@@ -17,12 +16,12 @@ function UserInfo({ userInfo, onTabChange }) {
   const [popupData, setPopupData] = useState({ isOpen: false, users: [], title: "" });
 
   useEffect(() => {
-    if (!userInfo?.id) return;
+    if (!userInfo?.uid) return;
 
     fetch("/api/follow/getFollower", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ uid: userInfo.id }),
+      body: JSON.stringify({ uid: userInfo.uid }),
     })
       .then((res) => res.json())
       .then((data) => {
@@ -34,7 +33,7 @@ function UserInfo({ userInfo, onTabChange }) {
     fetch("/api/follow/getFollowing", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ uid: userInfo.id }),
+      body: JSON.stringify({ uid: userInfo.uid }),
     })
       .then((res) => res.json())
       .then((data) => {
@@ -42,7 +41,7 @@ function UserInfo({ userInfo, onTabChange }) {
         setFollowing(data.following);
       })
       .catch((error) => console.error("Error fetching following:", error));
-  }, [userInfo?.id]);
+  }, [userInfo?.uid]);
 
   const onLogoutClick = () => {
     signOut({ callbackUrl: "/" });

@@ -95,7 +95,7 @@ function Header() {
             src={session.user.image || "/default-avatar.png"}
             alt="user-avatar"
             className="cursor-pointer"
-            onClick={() => router.push(`/${session?.user?.email}`)}
+            onClick={() => router.push(`/${session?.user?.name}`)}
           />
         ) : (
           <button

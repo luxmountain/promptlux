@@ -34,7 +34,7 @@ export const authOptions = {
 
         return {
           id: user.uid, // Sử dụng uid thay vì id
-          name: `${user.first_name} ${user.last_name}`,
+          name: user.username,
           email: user.email,
           image: user.avatar_image,
         };

@@ -34,7 +34,7 @@ function PostDetail() {
         if (!res.ok) throw new Error("Không thể tải bài viết");
 
         const data = await res.json();
-        // console.log(data); 
+        console.log(data); 
         setPost(data);
       } catch (err) {
         setError(err.message);

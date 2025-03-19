@@ -26,13 +26,13 @@ function Header() {
     if (!session?.user?.email) return;
     try {
       const userData = {
-        userName: session.user.name,
+        username: session.user.name,
         email: session.user.email,
-        image: session.user.image || null, // Ensure image is not undefined
+        avatar_image: session.user.image || null, // Ensure image is not undefined
         id: session.user.uid || null, // Ensure id is not undefined
       };
       await setDoc(doc(db, "users", session.user.email), userData);
-      console.log(session);
+      // console.log(session);
     } catch (error) {
       console.error("Error saving user info:", error);
     }

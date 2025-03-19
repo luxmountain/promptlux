@@ -2,16 +2,13 @@
 
 import React, { useEffect, useState } from "react";
 import PinItem from "./PinItem";
-import { useSession } from "next-auth/react";
 
-function SavedPinList() {
-  const { data: session } = useSession();
+function SavedPinList({ uid }) {
   const [savedPins, setSavedPins] = useState([]);
 
   useEffect(() => {
     const fetchSavedPins = async () => {
-      const uid = session?.user?.uid;
-      if (!uid) return;
+      if (!uid) return; // Chỉ fetch nếu có uid
 
       try {
         const response = await fetch(`/api/pins/getSavedPins?uid=${uid}`);
@@ -26,7 +23,7 @@ function SavedPinList() {
     };
 
     fetchSavedPins();
-  }, [session]);
+  }, [uid]); // Theo dõi sự thay đổi của uid
 
   return (
     <div className="columns-2 md:columns-4 lg:columns-6 gap-4 p-4">

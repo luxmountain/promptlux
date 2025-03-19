@@ -1,31 +1,83 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { signOut, useSession } from "next-auth/react";
 import ShareButton from "../action/ShareButton";
+import FollowButton from "../action/FollowButton";
+import FollowListPopup from "../popup/FollowList";
 
 function UserInfo({ userInfo, onTabChange }) {
   const { data: session } = useSession();
+  const [followerCount, setFollowerCount] = useState(0);
+  const [followingCount, setFollowingCount] = useState(0);
+  const [followers, setFollowers] = useState([]);
+  const [following, setFollowing] = useState([]);
+  const [popupData, setPopupData] = useState({ isOpen: false, users: [], title: "" });
+
+  useEffect(() => {
+    if (!userInfo?.id) return;
+
+    fetch("/api/follow/getFollower", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ uid: userInfo.id }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setFollowerCount(data.followers.length);
+        setFollowers(data.followers);
+      })
+      .catch((error) => console.error("Error fetching followers:", error));
+
+    fetch("/api/follow/getFollowing", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ uid: userInfo.id }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setFollowingCount(data.following.length);
+        setFollowing(data.following);
+      })
+      .catch((error) => console.error("Error fetching following:", error));
+  }, [userInfo?.id]);
 
   const onLogoutClick = () => {
     signOut({ callbackUrl: "/" });
   };
 
+  const openPopup = (type) => {
+    if (type === "followers") {
+      setPopupData({ isOpen: true, users: followers, title: "Danh sách Followers" });
+    } else {
+      setPopupData({ isOpen: true, users: following, title: "Danh sách Following" });
+    }
+  };
+
+  const closePopup = () => {
+    setPopupData({ isOpen: false, users: [], title: "" });
+  };
+
   return (
     <div className="flex flex-col items-center mt-8">
       <Image
-        src={userInfo.image || "/default-avatar.png"}
+        src={userInfo.avatar_image || "/default-avatar.png"}
         alt="User Image"
         width={100}
         height={100}
         className="w-36 h-36 rounded-full object-cover"
       />
 
-      <h2 className="text-[30px] font-semibold">{userInfo.userName}</h2>
+      <h2 className="text-[30px] font-semibold">{userInfo.username}</h2>
       <h2 className="text-gray-400">{userInfo.email}</h2>
 
-      <div className="flex gap-4 mt-">
-        <h3 className="text-gray-700">following</h3>
-        <h3 className="text-gray-700">follower</h3>
+      {/* Hiển thị số lượng follower và following */}
+      <div className="flex gap-4 mt-2">
+        <h3 className="text-gray-700 cursor-pointer" onClick={() => openPopup("following")}>
+          Following: {followingCount}
+        </h3>
+        <h3 className="text-gray-700 cursor-pointer" onClick={() => openPopup("followers")}>
+          Followers: {followerCount}
+        </h3>
       </div>
 
       <div className="flex gap-4 mb-2">
@@ -44,6 +96,7 @@ function UserInfo({ userInfo, onTabChange }) {
         >
           Created
         </button>
+        <FollowButton userInfo={userInfo} />
         {session?.user?.email === userInfo.email && (
           <button
             className="bg-gray-200 p-2 px-3 font-semibold mt-5 rounded-full cursor-pointer"
@@ -53,6 +106,9 @@ function UserInfo({ userInfo, onTabChange }) {
           </button>
         )}
       </div>
+
+      {/* Popup hiển thị danh sách followers/following */}
+      <FollowListPopup isOpen={popupData.isOpen} onClose={closePopup} users={popupData.users} title={popupData.title} />
     </div>
   );
 }

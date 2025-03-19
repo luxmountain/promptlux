@@ -1,47 +1,68 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { doc, getDoc, getFirestore } from "firebase/firestore";
-import app from "../Shared/firebaseConfig";
+import { useParams } from "next/navigation"; // Import useParams để lấy userId từ URL
 import UserInfo from "../components/profile/UserInfo";
 import PinListUser from "../components/Pins/PinListUser";
 import SavedPinList from "../components/Pins/SavedPinList";
 
-function Profile({ params }) {
-  const db = getFirestore(app);
-  const [userInfo, setUserInfo] = useState();
+function Profile() {
+  const params = useParams();
+  const [userInfo, setUserInfo] = useState(null);
   const [activeTab, setActiveTab] = useState("created");
 
   useEffect(() => {
-    const fetchParams = async () => {
-      const unwrappedParams = await params;
-      if (unwrappedParams) {
-        getUserInfo(unwrappedParams.userId.replace("%40", "@"));
+    if (!params?.userId) return;
+
+    const fetchUserInfo = async () => {
+      try {
+        const email = decodeURIComponent(params.userId); // Giải mã email từ URL
+
+        // Gọi API để lấy UID của user
+        const res = await fetch("/api/users/getId", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error || "Không thể lấy UID");
+        }
+
+        const uid = data.uid;
+
+        // Gọi API để lấy thông tin user theo UID
+        const userRes = await fetch("/api/users/getUserInfo", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ uid }),
+        });
+        const userData = await userRes.json();
+        console.log(userData);
+
+        if (!userRes.ok) {
+          throw new Error(userData.error || "Không thể lấy thông tin user");
+        }
+
+        setUserInfo(userData);
+      } catch (error) {
+        console.error("Lỗi khi lấy thông tin user:", error);
       }
     };
-    fetchParams();
-  }, [params]);
 
-  const getUserInfo = async (email) => {
-    const docRef = doc(db, "users", email);
-    const docSnap = await getDoc(docRef);
-
-    if (docSnap.exists()) {
-      setUserInfo(docSnap.data());
-    } else {
-      console.log("No such document!");
-    }
-  };
+    fetchUserInfo();
+  }, [params?.userId]);
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
-    localStorage.setItem("activeTab", tab); // Lưu vào localStorage
+    localStorage.setItem("activeTab", tab);
   };
 
   return (
     <div>
       {userInfo ? <UserInfo userInfo={userInfo} onTabChange={handleTabChange} /> : null}
-      {activeTab === "created" && <PinListUser />}
-      {activeTab === "saved" && <SavedPinList />}
+      {activeTab === "created" && <PinListUser uid={userInfo?.uid} />}
+      {activeTab === "saved" && <SavedPinList uid={userInfo?.uid} />}
     </div>
   );
 }

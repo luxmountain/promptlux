@@ -10,6 +10,7 @@ function UserInfo({ userInfo, onTabChange }) {
   const { data: session } = useSession();
   console.log(userInfo);
   console.log(session);
+  
   const [followerCount, setFollowerCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
   const [followers, setFollowers] = useState([]);
@@ -59,6 +60,7 @@ function UserInfo({ userInfo, onTabChange }) {
   const closePopup = () => {
     setPopupData({ isOpen: false, users: [], title: "" });
   };
+
   return (
     <div className="flex flex-col items-center mt-8">
       <Image
@@ -108,7 +110,7 @@ function UserInfo({ userInfo, onTabChange }) {
           </button>
         ) : (
           // Nếu không phải chính chủ thì hiện Follow, ẩn Logout
-          <FollowButton userInfo={userInfo} />
+          <FollowButton followingUserId={session?.user?.uid} followedUserId={userInfo.uid} />
         )}
       </div>
 

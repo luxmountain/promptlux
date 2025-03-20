@@ -1,4 +1,3 @@
-"use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Reply from "./reply";
@@ -9,19 +8,16 @@ export default function Comment({ comments = [], userId }) {
   const [commentList, setCommentList] = useState(comments);
   const [editingComment, setEditingComment] = useState(null);
   const [editText, setEditText] = useState("");
+  const [expandedComments, setExpandedComments] = useState({}); // 🆕 Thêm state theo dõi mở rộng
 
   const router = useRouter();
 
-  // Chuyển đổi danh sách bình luận thành một dạng cây
   const buildCommentTree = (comments) => {
     const commentMap = {};
-
-    // Tạo một map để dễ tìm kiếm
     comments.forEach((comment) => {
       commentMap[comment.cid] = { ...comment, replies: [] };
     });
 
-    // Gán bình luận con vào bình luận cha của nó
     const tree = [];
     comments.forEach((comment) => {
       if (comment.comment_replied_to_id) {
@@ -29,7 +25,7 @@ export default function Comment({ comments = [], userId }) {
           commentMap[comment.comment_replied_to_id].replies.push(commentMap[comment.cid]);
         }
       } else {
-        tree.push(commentMap[comment.cid]); // Là bình luận gốc
+        tree.push(commentMap[comment.cid]);
       }
     });
 
@@ -97,7 +93,6 @@ export default function Comment({ comments = [], userId }) {
 
       setEditingComment(null);
       setEditText("");
-      window.location.reload();
     } catch (error) {
       console.error("Error editing comment:", error);
     }
@@ -110,7 +105,6 @@ export default function Comment({ comments = [], userId }) {
 
       setCommentList((prevComments) => prevComments.filter((comment) => comment.cid !== cid));
       setShowPopup(null);
-      window.location.reload();
     } catch (error) {
       console.error("Error deleting comment:", error);
     }
@@ -120,6 +114,13 @@ export default function Comment({ comments = [], userId }) {
     if (username) {
       router.push(`/${username}`);
     }
+  };
+
+  const toggleReplies = (cid) => {
+    setExpandedComments((prev) => ({
+      ...prev,
+      [cid]: !prev[cid],
+    }));
   };
 
   const renderComments = (comments, level = 0) => {
@@ -184,31 +185,29 @@ export default function Comment({ comments = [], userId }) {
 
             {comment.uid === userId && (
               <div className="flex space-x-2">
-                <button 
-                  onClick={() => handleEditClick(comment.cid, comment.comment)} 
-                  className="px-3 py-1 text-gray-600 hover:text-gray-800 border border-gray-300 rounded-md transition"
-                >
+                <button onClick={() => handleEditClick(comment.cid, comment.comment)} className="px-3 py-1 text-gray-600 hover:text-gray-800 border border-gray-300 rounded-md transition">
                   Edit
                 </button>
-                <button 
-                  onClick={() => handleDelete(comment.cid)} 
-                  className="px-3 py-1 text-red-600 hover:text-red-800 border border-red-300 rounded-md transition"
-                >
+                <button onClick={() => handleDelete(comment.cid)} className="px-3 py-1 text-red-600 hover:text-red-800 border border-red-300 rounded-md transition">
                   Delete
                 </button>
               </div>
             )}
           </div>
 
-          {comment.replies.length > 0 && <div className="mt-4">{renderComments(comment.replies, level + 1)}</div>}
+          {comment.replies.length > 0 && (
+            <button className="text-blue-500 text-sm mt-2" onClick={() => toggleReplies(comment.cid)}>
+              {expandedComments[comment.cid] ? `Hide ${comment.replies.length} replies` : `View ${comment.replies.length} replies`}
+            </button>
+          )}
+
+          {expandedComments[comment.cid] && comment.replies.length > 0 && (
+            <div className="mt-4">{renderComments(comment.replies, level + 1)}</div>
+          )}
         </div>
       );
     });
   };
 
-  return (
-    <div className="max-h-96 overflow-y-auto pr-2">
-      {commentTree.length === 0 ? <p>No comments available.</p> : renderComments(commentTree)}
-    </div>
-  );
+  return <div className="max-h-96 overflow-y-auto pr-2">{commentTree.length === 0 ? <p>No comments available.</p> : renderComments(commentTree)}</div>;
 }

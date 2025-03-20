@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Reply from "./reply";
 
 export default function Comment({ comments = [], userId }) {
   const [userDetails, setUserDetails] = useState({});
@@ -8,9 +9,35 @@ export default function Comment({ comments = [], userId }) {
   const [commentList, setCommentList] = useState(comments);
   const [editingComment, setEditingComment] = useState(null);
   const [editText, setEditText] = useState("");
-  
+
   const router = useRouter();
-  
+
+  // Chuyển đổi danh sách bình luận thành một dạng cây
+  const buildCommentTree = (comments) => {
+    const commentMap = {};
+
+    // Tạo một map để dễ tìm kiếm
+    comments.forEach((comment) => {
+      commentMap[comment.cid] = { ...comment, replies: [] };
+    });
+
+    // Gán bình luận con vào bình luận cha của nó
+    const tree = [];
+    comments.forEach((comment) => {
+      if (comment.comment_replied_to_id) {
+        if (commentMap[comment.comment_replied_to_id]) {
+          commentMap[comment.comment_replied_to_id].replies.push(commentMap[comment.cid]);
+        }
+      } else {
+        tree.push(commentMap[comment.cid]); // Là bình luận gốc
+      }
+    });
+
+    return tree;
+  };
+
+  const commentTree = buildCommentTree(commentList);
+
   useEffect(() => {
     async function fetchUserData() {
       const uniqueUserIds = [...new Set(commentList.map((comment) => comment.uid))];
@@ -90,99 +117,98 @@ export default function Comment({ comments = [], userId }) {
   };
 
   const handleNavigate = (username) => {
-    console.log(username);
     if (username) {
       router.push(`/${username}`);
     }
   };
 
+  const renderComments = (comments, level = 0) => {
+    return comments.map((comment) => {
+      const user = userDetails[comment.uid] || {};
+
+      return (
+        <div key={comment.cid} className={`mb-4 p-4 bg-white shadow rounded-lg ${level > 0 ? "ml-8" : ""}`}>
+          <div className="flex items-center space-x-3">
+            {user.avatar_image ? (
+              <img
+                onClick={() => handleNavigate(user.username)}
+                src={user.avatar_image}
+                alt="Avatar"
+                className="cursor-pointer w-8 h-8 rounded-full"
+              />
+            ) : (
+              <div className="w-8 h-8 bg-gray-300 rounded-full animate-pulse"></div>
+            )}
+
+            <div className="flex flex-col w-full">
+              <span className="font-semibold cursor-pointer" onClick={() => handleNavigate(user.username)}>
+                {user.username ? user.username : "Loading..."}
+              </span>
+
+              {editingComment === comment.cid ? (
+                <div className="flex space-x-2 mt-2">
+                  <input
+                    type="text"
+                    value={editText}
+                    onChange={(e) => setEditText(e.target.value)}
+                    className="border p-1 flex-1 rounded-md"
+                  />
+                  <button
+                    onClick={() => handleEditSave(comment.cid)}
+                    className="bg-blue-500 text-white px-3 py-1 rounded-md"
+                  >
+                    Save
+                  </button>
+                  <button
+                    onClick={handleEditCancel}
+                    className="bg-gray-400 text-white px-3 py-1 rounded-md"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                <span>{comment.comment}</span>
+              )}
+            </div>
+          </div>
+
+          <div className="flex items-center mt-2 text-sm text-gray-600 space-x-4">
+            <span>{new Date(comment.created_at).toLocaleDateString()}</span>
+            <button onClick={() => setShowPopup(comment.cid)} className="hover:text-gray-800">
+              Reply
+            </button>
+
+            {showPopup === comment.cid && (
+              <Reply parentCommentId={comment.cid} pid={comment.pid} userId={userId} />
+            )}
+
+            {comment.uid === userId && (
+              <div className="flex space-x-2">
+                <button 
+                  onClick={() => handleEditClick(comment.cid, comment.comment)} 
+                  className="px-3 py-1 text-gray-600 hover:text-gray-800 border border-gray-300 rounded-md transition"
+                >
+                  Edit
+                </button>
+                <button 
+                  onClick={() => handleDelete(comment.cid)} 
+                  className="px-3 py-1 text-red-600 hover:text-red-800 border border-red-300 rounded-md transition"
+                >
+                  Delete
+                </button>
+              </div>
+            )}
+          </div>
+
+          {comment.replies.length > 0 && <div className="mt-4">{renderComments(comment.replies, level + 1)}</div>}
+        </div>
+      );
+    });
+  };
+
   return (
     <div className="max-h-96 overflow-y-auto pr-2">
-      {commentList.length === 0 ? (
-        <p>No comments available.</p>
-      ) : (
-        commentList.map((comment) => {
-          const user = userDetails[comment.uid] || {};
-
-          return (
-            <div key={comment.cid} className="mb-8 bg-white shadow rounded-lg p-4">
-              <div className="flex items-center space-x-3">
-                {user.avatar_image ? (
-                  <img onClick={() => handleNavigate(user.username)}  src={user.avatar_image} alt="Avatar" className="cursor-pointer w-8 h-8 rounded-full" />
-                ) : (
-                  <div className="w-8 h-8 bg-gray-300 rounded-full animate-pulse"></div>
-                )}
-
-                <div className="flex flex-col w-full">
-                  <span className="font-semibold cursor-pointer" onClick={() => handleNavigate(user.username)}>
-                    {user.username ? user.username : "Loading..."}
-                  </span>
-
-                  {editingComment === comment.cid ? (
-                    <div className="flex space-x-2 mt-2">
-                      <input
-                        type="text"
-                        value={editText}
-                        onChange={(e) => setEditText(e.target.value)}
-                        className="border p-1 flex-1 rounded-md"
-                      />
-                      <button
-                        onClick={() => handleEditSave(comment.cid)}
-                        className="bg-blue-500 text-white px-3 py-1 rounded-md"
-                      >
-                        Save
-                      </button>
-                      <button
-                        onClick={handleEditCancel}
-                        className="bg-gray-400 text-white px-3 py-1 rounded-md"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  ) : (
-                    <span>{comment.comment}</span>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex items-center mt-2 text-sm text-gray-600 space-x-4">
-                <span>{new Date(comment.created_at).toLocaleDateString()}</span>
-                <button className="hover:text-gray-800">Reply</button>
-
-                {comment.uid === userId && (
-                  <div className="relative">
-                    <button
-                      onClick={() => setShowPopup(showPopup === comment.cid ? null : comment.cid)}
-                      className="hover:bg-gray-200 p-1 rounded-full cursor-pointer"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="#000000" height="20px" width="20px" viewBox="0 0 16 16">
-                        <path d="M8,6.5A1.5,1.5,0,1,1,6.5,8,1.5,1.5,0,0,1,8,6.5ZM.5,8A1.5,1.5,0,1,0,2,6.5,1.5,1.5,0,0,0,.5,8Zm12,0A1.5,1.5,0,1,0,14,6.5,1.5,1.5,0,0,0,12.5,8Z"/>
-                      </svg>
-                    </button>
-
-                    {showPopup === comment.cid && (
-                      <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-md py-2">
-                        <button
-                          onClick={() => handleEditClick(comment.cid, comment.comment)}
-                          className="block w-full text-left px-4 py-2 text-sm text-gray-700 cursor-pointer hover:bg-gray-200"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDelete(comment.cid)}
-                          className="block w-full text-left px-4 py-2 text-sm text-red-600 cursor-pointer hover:bg-gray-200"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-          );
-        })
-      )}
+      {commentTree.length === 0 ? <p>No comments available.</p> : renderComments(commentTree)}
     </div>
   );
 }

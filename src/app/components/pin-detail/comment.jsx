@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Reply from "./reply";
+import LikeButton from "../action/LikeButton";
 
 export default function Comment({ comments = [], userId }) {
   const [userDetails, setUserDetails] = useState({});
@@ -175,6 +176,7 @@ export default function Comment({ comments = [], userId }) {
 
           <div className="flex items-center mt-2 text-sm text-gray-600 space-x-4">
             <span>{new Date(comment.created_at).toLocaleDateString()}</span>
+            <LikeButton cid={comment.cid} likes={comment.likes} userId={userId} />
             <button onClick={() => setShowPopup(comment.cid)} className="hover:text-gray-800">
               Reply
             </button>

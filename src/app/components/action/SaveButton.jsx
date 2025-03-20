@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 
 function SaveButton({ pid, uid, postOwnerId }) {
   const [isSaveClicked, setIsSaveClicked] = useState(false);
-
   useEffect(() => {
     if (uid === postOwnerId) return; // Không cần check nếu là bài đăng của chính user
 

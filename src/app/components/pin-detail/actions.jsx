@@ -2,11 +2,14 @@
 import React, { useEffect, useState } from "react";
 import ShareButton from "../action/ShareButton";
 import SaveButton from "../action/SaveButton";
+import LikePostList from "../popup/LikePostList"; // Import danh sách người thích
+import ListWrapper from "../wrapper/List"; // Wrapper for popups
 
 const PostActions = ({ postOwnerId, postId, userId, imageUrl }) => {
   const [isHeartClicked, setIsHeartClicked] = useState(false);
   const [likes, setLikes] = useState(0);
   const [isDownloadClicked, setIsDownloadClicked] = useState(false);
+  const [isPopupOpen, setIsPopupOpen] = useState(false); // State mở popup
 
   const fetchLikes = async () => {
     try {
@@ -27,37 +30,16 @@ const PostActions = ({ postOwnerId, postId, userId, imageUrl }) => {
       console.error("Error fetching likes:", error);
     }
   };
-  const postUrl = `${window.location.origin}/pin/${postId}`;
-
-
-  const handleDownload = () => {
-    setIsDownloadClicked(true);
-    const apiUrl = `/api/download?url=${encodeURIComponent(imageUrl)}`;
-    // Tạo một thẻ <a> ẩn để tải ảnh
-    const link = document.createElement("a");
-    link.href = apiUrl;
-    link.download = "downloaded_image.jpg"; // Tên file khi tải xuống
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    setTimeout(() => setIsDownloadClicked(false), 200); // Reset trạng thái sau khi click
-  };
-  
-  useEffect(() => {
-    fetchLikes();
-  }, [postId]);
 
   const handleHeartClick = async () => {
     try {
       if (isHeartClicked) {
-        // Gọi API DELETE để unlike
         const response = await fetch("/api/like", {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ uid: userId, pid: postId }),
         });
-  
+
         if (response.ok) {
           setIsHeartClicked(false);
           setLikes((prev) => prev - 1);
@@ -65,13 +47,12 @@ const PostActions = ({ postOwnerId, postId, userId, imageUrl }) => {
           console.error("Error unliking post");
         }
       } else {
-        // Gọi API POST để like
         const response = await fetch("/api/like", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ uid: userId, pid: postId }),
         });
-  
+
         if (response.ok) {
           setIsHeartClicked(true);
           setLikes((prev) => prev + 1);
@@ -83,6 +64,10 @@ const PostActions = ({ postOwnerId, postId, userId, imageUrl }) => {
       console.error("Error handling like:", error);
     }
   };
+
+  useEffect(() => {
+    fetchLikes();
+  }, [postId]);
 
   return (
     <div className="flex items-center justify-between w-full h-14 bg-white">
@@ -105,33 +90,49 @@ const PostActions = ({ postOwnerId, postId, userId, imageUrl }) => {
             </svg>
           )}
         </button>
-        <span className="text-lg font-semibold">{likes}</span>
+
+        {/* Hiển thị số lượt thích, nhấn vào mở popup */}
+        <span
+          className="text-lg font-semibold cursor-pointer hover:underline"
+          onClick={() => setIsPopupOpen(true)}
+        >
+          {likes}
+        </span>
 
         {/* Share Button */}
-        <ShareButton link={postUrl} message={"🔥 Check out this amazing post! 🚀"}/>
+        <ShareButton link={`${window.location.origin}/pin/${postId}`} message={"🔥 Check out this amazing post! 🚀"}/>
 
         {/* Download Button */}
         <button
-          onClick={handleDownload}
+          onClick={() => {
+            setIsDownloadClicked(true);
+            const apiUrl = `/api/download?url=${encodeURIComponent(imageUrl)}`;
+            const link = document.createElement("a");
+            link.href = apiUrl;
+            link.download = "downloaded_image.jpg";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            setTimeout(() => setIsDownloadClicked(false), 200);
+          }}
           className={`w-10 h-10 flex items-center justify-center rounded-full transition ${
             isDownloadClicked ? "bg-black text-white" : "hover:bg-gray-200"
           }`}
         >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="currentColor"
-          height="24"
-          width="24"
-          viewBox="0 0 24 24"
-        >
-          <path d="M12 16L7 11h3V3h4v8h3z" />
-          <path d="M5 18h14v2H5z" />
-        </svg>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" height="24" width="24" viewBox="0 0 24 24">
+            <path d="M12 16L7 11h3V3h4v8h3z" />
+            <path d="M5 18h14v2H5z" />
+          </svg>
         </button>
       </div>
 
       {/* Right Section */}
       <SaveButton pid={postId} uid={userId} postOwnerId={postOwnerId} />
+
+      {/* Popup danh sách người thích bài viết */}
+      <ListWrapper isOpen={isPopupOpen} onClose={() => setIsPopupOpen(false)}>
+        {isPopupOpen && postId && <LikePostList pid={postId} />}
+      </ListWrapper>
     </div>
   );
 };

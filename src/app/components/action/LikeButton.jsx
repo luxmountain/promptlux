@@ -1,20 +1,23 @@
 import { useState, useEffect } from "react";
+import ListWrapper from "../wrapper/List"; // Wrapper for popups
+import LikedUsersList from "../popup/LikeList"; // List of users who liked the comment
 
 export default function LikeButton({ cid, userId }) {
   const [isHeartClicked, setIsHeartClicked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
+  const [isPopupOpen, setIsPopupOpen] = useState(false); // State để mở popup
 
   useEffect(() => {
     const fetchLikeData = async () => {
       try {
-        // Fetch total like count
+        // Fetch tổng số lượt thích
         const likeResponse = await fetch(`/api/like/comment/${cid}`);
         if (!likeResponse.ok) throw new Error("Không thể lấy dữ liệu like");
 
         const likeData = await likeResponse.json();
         setLikeCount(likeData.likeCount || 0);
 
-        // Fetch if the current user has liked this comment
+        // Kiểm tra xem user hiện tại có like không
         if (userId) {
           const checkResponse = await fetch(`/api/like/comment/${cid}/check?uid=${userId}`);
           if (!checkResponse.ok) throw new Error("Không thể kiểm tra trạng thái like");
@@ -40,7 +43,7 @@ export default function LikeButton({ cid, userId }) {
 
     try {
       if (isHeartClicked) {
-        // Send Unlike request
+        // Gửi yêu cầu bỏ like
         const response = await fetch(`/api/like/comment`, {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
@@ -52,7 +55,7 @@ export default function LikeButton({ cid, userId }) {
         setIsHeartClicked(false);
         setLikeCount((prev) => Math.max(prev - 1, 0));
       } else {
-        // Send Like request
+        // Gửi yêu cầu like
         const response = await fetch(`/api/like/comment`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -71,6 +74,7 @@ export default function LikeButton({ cid, userId }) {
 
   return (
     <div className="flex items-center space-x-2">
+      {/* Nút like */}
       <button
         onClick={handleHeartClick}
         className={`w-4 h-4 flex items-center justify-center rounded-full transition ${
@@ -87,7 +91,19 @@ export default function LikeButton({ cid, userId }) {
           </svg>
         )}
       </button>
-      <span className="text-lg font-semibold">{likeCount}</span>
+
+      {/* Số lượt thích (Nhấn vào để mở danh sách) */}
+      <span
+        className="text-lg font-semibold cursor-pointer hover:underline"
+        onClick={() => setIsPopupOpen(true)}
+      >
+        {likeCount}
+      </span>
+
+      {/* Popup danh sách người thích */}
+      <ListWrapper isOpen={isPopupOpen} onClose={() => setIsPopupOpen(false)}>
+        <LikedUsersList cid={cid} />
+      </ListWrapper>
     </div>
   );
 }

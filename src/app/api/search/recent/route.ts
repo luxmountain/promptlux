@@ -8,14 +8,15 @@ export async function POST(req: Request) {
   try {
     const { uid, keyword } = await req.json();
 
-    if (!uid || !keyword) {
-      return NextResponse.json({ error: "Missing uid or keyword" }, { status: 400 });
+    const parsedUid = Number(uid);
+    
+    if (!parsedUid || !keyword) {
+      return NextResponse.json({ error: "Missing or invalid uid or keyword" }, { status: 400 });
     }
-
-    // Thêm từ khóa tìm kiếm vào RecentSearch
+    
     const recentSearch = await prisma.recentSearch.create({
       data: {
-        uid,
+        uid: parsedUid,
         keyword,
       },
     });

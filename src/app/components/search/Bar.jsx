@@ -1,18 +1,22 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { InputBase } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import SearchWrapper from "../suggestion/Search";
+import { useSession } from "next-auth/react"; // 🔥 Import NextAuth để lấy session
 
 function SearchBar() {
+  const { data: session } = useSession(); // Lấy session từ NextAuth
+  const userId = session?.user?.uid; // Lấy userId từ session
+
   const [searchQuery, setSearchQuery] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const searchRef = useRef(null);
 
   // Xóa nội dung tìm kiếm & đóng gợi ý
   const clearSearch = (e) => {
-    e.stopPropagation(); // Ngăn mất focus khi bấm vào nút X
+    e.stopPropagation();
     setSearchQuery("");
     setShowSuggestions(false);
   };
@@ -20,6 +24,32 @@ function SearchBar() {
   // Đóng search khi bấm vào overlay bên ngoài
   const closeSearch = () => {
     setShowSuggestions(false);
+  };
+
+  // Xử lý khi bấm Enter
+  const handleSearch = async (e) => {
+    if (e.key === "Enter" && searchQuery.trim() !== "") {
+      e.preventDefault(); // Ngăn reload trang
+
+      try {
+        // 🔍 Gửi API tìm kiếm
+        const response = await fetch(`/api/search?q=${searchQuery}`);
+        const data = await response.json();
+        console.log("Search results:", data);
+
+        if (userId) {
+          await fetch("/api/search/recent", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ uid: userId, keyword: searchQuery }),
+          });
+        }
+
+        setShowSuggestions(false); // Ẩn gợi ý sau khi tìm kiếm
+      } catch (error) {
+        console.error("Search error:", error);
+      }
+    }
   };
 
   return (
@@ -46,6 +76,7 @@ function SearchBar() {
           className="ml-2 w-full"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
+          onKeyDown={handleSearch} // 🛠 Xử lý khi bấm Enter
           onFocus={() => setShowSuggestions(true)}
         />
 

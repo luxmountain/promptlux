@@ -103,8 +103,20 @@ function PostDetail() {
             </div>
           </div>
         </div>
-      </div>
 
+      </div>
+      {post?.description && (
+        <div className="grid justify-items-center text-center mb-4">
+          <h4 className="text-lg font-semibold">Description</h4>
+          <p className="text-gray-700">{post.description}</p>
+        </div>
+        )}
+      {post?.prompt_used && (
+        <div className="grid justify-items-center text-center">
+          <h4 className="text-lg font-semibold">Prompt Used</h4>
+          <p className="text-gray-700">{post.prompt_used}</p>
+        </div>
+        )}
       <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
     </>
   );

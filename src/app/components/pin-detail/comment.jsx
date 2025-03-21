@@ -94,6 +94,7 @@ export default function Comment({ comments = [], userId }) {
 
       setEditingComment(null);
       setEditText("");
+      window.location.reload();
     } catch (error) {
       console.error("Error editing comment:", error);
     }
@@ -106,6 +107,8 @@ export default function Comment({ comments = [], userId }) {
 
       setCommentList((prevComments) => prevComments.filter((comment) => comment.cid !== cid));
       setShowPopup(null);
+      window.location.reload();
+
     } catch (error) {
       console.error("Error deleting comment:", error);
     }

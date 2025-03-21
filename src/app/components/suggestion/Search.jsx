@@ -116,7 +116,7 @@ const SearchWrapper = () => {
       )}
 
       {/* Popular Search */}
-      <h2 className="text-lg font-bold text-black mt-4 mb-3">Popular search</h2>
+      <h2 className="text-lg font-bold text-black mt-4 mb-3">Popular search (mock)</h2>
       <div className="flex flex-wrap gap-2">
         {suggestionsPopularData.map((suggestion) => (
           <div

@@ -8,29 +8,31 @@ import SavedPinList from "../components/Pins/SavedPinList";
 function Profile() {
   const params = useParams();
   const [userInfo, setUserInfo] = useState(null);
-  const [activeTab, setActiveTab] = useState("created");
+  const [activeTab, setActiveTab] = useState(() => {
+    // Kiểm tra localStorage khi component mount
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("activeTab") || "created";
+    }
+    return "created";
+  });
 
   useEffect(() => {
-    if (!params?.userId) return; // Thay vì userId, ta lấy userId từ URL
+    if (!params?.userId) return;
 
     const fetchUserInfo = async () => {
       try {
-        const username = decodeURIComponent(params.userId); // Chuyển về chữ thường
-        // Gọi API mới để lấy UID theo userId
+        const username = decodeURIComponent(params.userId);
         const res = await fetch("/api/users/getId", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username }), // Gửi userId đã được lowercase
+          body: JSON.stringify({ username }),
         });
 
         const data = await res.json();
-        if (!res.ok) {
-          throw new Error(data.error || "Không thể lấy UID");
-        }
+        if (!res.ok) throw new Error(data.error || "Không thể lấy UID");
 
         const uid = data.uid;
 
-        // Gọi API để lấy thông tin user theo UID
         const userRes = await fetch("/api/users/getUserInfo", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -38,9 +40,7 @@ function Profile() {
         });
 
         const userData = await userRes.json();
-        if (!userRes.ok) {
-          throw new Error(userData.error || "Không thể lấy thông tin user");
-        }
+        if (!userRes.ok) throw new Error(userData.error || "Không thể lấy thông tin user");
 
         setUserInfo(userData);
       } catch (error) {
@@ -49,11 +49,22 @@ function Profile() {
     };
 
     fetchUserInfo();
-  }, [params?.userId]); // Theo dõi userId thay vì userId
+  }, [params?.userId]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedTab = localStorage.getItem("activeTab");
+      if (storedTab) {
+        setActiveTab(storedTab);
+      }
+    }
+  }, []);
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
-    localStorage.setItem("activeTab", tab);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("activeTab", tab);
+    }
   };
 
   return (

@@ -21,9 +21,10 @@ export async function GET(req: Request) {
     const savedPosts = await prisma.savedPost.findMany({
       where: { uid: userId },
       include: {
-        post: {
+        Post: {
           include: {
-            user: true, // Lấy thông tin user đã đăng bài
+            user: true,
+            model: true,
           },
         },
       },

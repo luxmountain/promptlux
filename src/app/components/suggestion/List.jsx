@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useSession } from "next-auth/react"; // Import session
+import { useSession } from "next-auth/react";
 
 const suggestionsPopularData = [
   { id: 1, title: "PC desktop wallpaper", image: "https://placekitten.com/301/200" },
@@ -11,9 +11,9 @@ const suggestionsPopularData = [
   { id: 5, title: "Minimalist desktop setup", image: "https://placekitten.com/305/200" },
 ];
 
-const SearchWrapper = () => {
-  const { data: session } = useSession(); // Lấy session
-  const userId = session?.user?.uid; // Lấy userId từ session
+const SuggestionList = () => {
+  const { data: session } = useSession();
+  const userId = session?.user?.uid;
   const [recentSearches, setRecentSearches] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -71,7 +71,7 @@ const SearchWrapper = () => {
   };
 
   return (
-    <div className="absolute top-full left-0 w-full bg-white shadow-lg mt-1 z-20 max-h-[600px] overflow-y-auto p-4 rounded-xl">
+    <div>
       {/* Recent Search */}
       <div className="flex justify-between items-center mb-3">
         <h2 className="text-lg font-bold text-black">Recent search</h2>
@@ -95,20 +95,7 @@ const SearchWrapper = () => {
             >
               <span className="text-sm text-gray-800 mr-2">{suggestion.title}</span>
               <button className="cursor-pointer" onClick={() => handleDeleteRecent(suggestion.id)}>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16px"
-                  height="16px"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                >
-                  <path
-                    fillRule="evenodd"
-                    clipRule="evenodd"
-                    d="M19.207 6.207a1 1 0 0 0-1.414-1.414L12 10.586 6.207 4.793a1 1 0 0 0-1.414 1.414L10.586 12l-5.793 5.793a1 1 0 1 0 1.414 1.414L12 13.414l5.793 5.793a1 1 0 0 0 1.414-1.414L13.414 12l5.793-5.793z"
-                    fill="#000000"
-                  />
-                </svg>
+                ❌
               </button>
             </div>
           ))}
@@ -136,4 +123,4 @@ const SearchWrapper = () => {
   );
 };
 
-export default SearchWrapper;
+export default SuggestionList;

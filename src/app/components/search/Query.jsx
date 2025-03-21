@@ -8,7 +8,6 @@ function SearchQuery({ query }) {
       fetch(`/api/search?q=${query}`)
         .then((res) => res.json())
         .then((data) => {
-          console.log("API Response:", data);
           setResults(data);
         })
         .catch((err) => console.error("Search error:", err));

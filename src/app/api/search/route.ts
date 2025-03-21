@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
+import { pid } from "process";
 
 const prisma = new PrismaClient();
 
@@ -31,12 +32,12 @@ export async function GET(req: NextRequest) {
           { description: { contains: query, mode: "insensitive" } },
         ],
       },
-      select: { title: true, description: true },
+      select: { title: true, description: true, pid: true },
     });
 
     return NextResponse.json({
       tags: tags.map((t) => t.tag_content),
-      posts: posts.map((p) => ({ title: p.title, description: p.description })),
+      posts: posts.map((p) => ({ title: p.title, description: p.description, pid: p.pid })),
     });
   } catch (error) {
     console.error("Error fetching search results:", error);

@@ -64,11 +64,33 @@ const PostActions = ({ postOwnerId, postId, userId, imageUrl }) => {
       console.error("Error handling like:", error);
     }
   };
+  const [seenCount, setSeenCount] = useState(0);
 
+  const fetchSeenCount = async () => {
+    try {
+      await fetch("/api/seen", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ uid: userId, pid: postId }),
+      });
+  
+      const response = await fetch(`/api/seen/${postId}`);
+      if (!response.ok) throw new Error("Failed to fetch seen count");
+  
+      const data = await response.json();
+      setSeenCount(data.length);
+    } catch (error) {
+      console.error("Error updating seen count:", error);
+    }
+  };
+  
   useEffect(() => {
     fetchLikes();
-  }, [postId]);
-
+    const timer = setTimeout(fetchSeenCount, 10000); // Gọi fetchSeenCount sau 10 giây
+  
+    return () => clearTimeout(timer);
+  }, [postId, userId]);
+  
   return (
     <div className="flex items-center justify-between w-full h-14 bg-white">
       {/* Left Section */}
@@ -124,6 +146,8 @@ const PostActions = ({ postOwnerId, postId, userId, imageUrl }) => {
             <path d="M5 18h14v2H5z" />
           </svg>
         </button>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="w-5 h-5 mt-1 text-c-12"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"></path><path fill-rule="evenodd" d="M1.323 11.447C2.811 6.976 7.028 3.75 12.001 3.75c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113-1.487 4.471-5.705 7.697-10.677 7.697-4.97 0-9.186-3.223-10.675-7.69a1.762 1.762 0 010-1.113zM17.25 12a5.25 5.25 0 11-10.5 0 5.25 5.25 0 0110.5 0z" clip-rule="evenodd"></path></svg>
+        <span className="text-lg font-semibold">{seenCount}</span>
       </div>
 
       {/* Right Section */}

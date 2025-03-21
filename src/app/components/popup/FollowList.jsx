@@ -4,7 +4,6 @@ import ListWrapper from "../wrapper/List";
 import UserListItem from "./UserItem"; // Import component chung
 
 export default function FollowListPopup({ isOpen, onClose, users, title }) {
-  console.log("users", users);
   return (
     <ListWrapper isOpen={isOpen} onClose={onClose}>
       <h2 className="text-lg font-bold mb-4">{title}</h2>

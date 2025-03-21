@@ -8,7 +8,6 @@ const LikePostList = ({ pid }) => {
     if (!pid) return; // Tránh gọi API khi pid chưa có
 
     const fetchLikedUsers = async () => {
-      console.log("Fetching likes for pid:", pid);
       try {
         const response = await fetch("/api/like/getLike", {
           method: "POST",
@@ -18,7 +17,6 @@ const LikePostList = ({ pid }) => {
 
         if (response.ok) {
           const data = await response.json();
-          console.log("Fetched likes:", data);
           setLikedUsers(data.likes);
         } else {
           console.error("Failed to fetch liked users");

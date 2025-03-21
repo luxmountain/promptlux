@@ -8,8 +8,6 @@ export default function UserListItem({ user }) {
   const router = useRouter();
   const { data: session } = useSession();
   const currentUserId = session?.user?.uid; // Lấy UID của user hiện tại từ session
-  console.log("user", user);
-  console.log("currentUserId", currentUserId);
   return (
     <li className="flex items-center gap-3 border-b pb-2 p-2 rounded-lg hover:bg-gray-100">
       {/* Avatar - Chuyển hướng khi click */}

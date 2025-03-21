@@ -44,10 +44,8 @@ function Form() {
 
     try {
       const email = session.user.email;
-      console.log("Fetching UID for:", email);
       
       const uid = session.user.uid;
-      console.log("UID:", uid);
 
       if (!uid) {
         console.error("Failed to fetch UID for email:", email);
@@ -78,7 +76,6 @@ function Form() {
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Error creating post");
 
-      console.log("Post saved successfully:", result);
       router.push(`/`);
     } catch (error) {
       console.error("Error:", error);

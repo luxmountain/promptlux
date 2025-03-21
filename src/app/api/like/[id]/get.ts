@@ -9,7 +9,6 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     const uid = searchParams.get("uid");
     const pid = Number(params.id);
 
-    console.log("Checking like for uid:", uid, "and pid:", pid);
 
     if (!uid || isNaN(pid)) {
       return NextResponse.json({ message: "Missing or invalid uid or pid" }, { status: 400 });

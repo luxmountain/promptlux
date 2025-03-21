@@ -7,7 +7,6 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
   try {
     const cid = Number(params.id);
 
-    console.log("Fetching likes for comment id:", cid);
 
     if (isNaN(cid)) {
       return NextResponse.json({ message: "Invalid comment id" }, { status: 400 });

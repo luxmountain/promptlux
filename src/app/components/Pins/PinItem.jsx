@@ -6,7 +6,6 @@ import LoginModal from "../auth/LoginModal"; // Import modal login
 function PinItem({ pin }) {
   const { data: session } = useSession();
   const router = useRouter();
-  console.log("pin", pin);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   const handleClick = () => {

@@ -32,7 +32,6 @@ function Header() {
         id: session.user.uid || null, // Ensure id is not undefined
       };
       await setDoc(doc(db, "users", session.user.email), userData);
-      // console.log(session);
     } catch (error) {
       console.error("Error saving user info:", error);
     }

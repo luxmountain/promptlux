@@ -40,7 +40,6 @@ function PostDetail() {
         if (!res.ok) throw new Error("Không thể tải bài viết");
 
         const data = await res.json();
-        console.log(data); 
         setPost(data);
       } catch (err) {
         setError(err.message);
@@ -48,9 +47,23 @@ function PostDetail() {
         setLoading(false);
       }
     };
+    if (!userId || !postId) return;
 
+    const recordSeen = async () => {
+      try {
+        await fetch("/api/seen", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ uid: userId, pid: Number(postId) }),
+        });
+      } catch (error) {
+        console.error("Failed to record seen:", error);
+      }
+    };
+  
+    recordSeen();
     fetchPost();
-  }, [session, status, postId]);
+  }, [session, status, postId, userId]);
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;

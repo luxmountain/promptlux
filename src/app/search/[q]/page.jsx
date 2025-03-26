@@ -6,6 +6,7 @@ import PinListSearch from "../../components/Pins/PinListQuery"; // Import compon
 
 function SearchPage() {
   const { q } = useParams(); // Lấy giá trị q từ URL
+  const decodedQuery = decodeURIComponent(q || ""); // ✅ Decode query để tránh lỗi ký tự `%20`
   const [results, setResults] = useState({ tags: [], posts: [] });
 
   useEffect(() => {
@@ -19,7 +20,9 @@ function SearchPage() {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Search Results for "{q}"</h1>
+      <h1 className="text-2xl font-bold mb-4">
+        Search Results for "{decodedQuery}"
+      </h1>
 
       {/* Hiển thị Tags */}
       {results.tags.length > 0 && (

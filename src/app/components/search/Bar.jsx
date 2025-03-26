@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";  // Import useRouter
+import { useRouter } from "next/navigation";  
 import { InputBase } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import SearchWrapper from "../wrapper/Search";
@@ -11,7 +11,7 @@ import SearchQuery from "./Query";
 function SearchBar() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showPopup, setShowPopup] = useState(false);
-  const router = useRouter();  // Khởi tạo useRouter để điều hướng
+  const router = useRouter();
 
   const handleInputChange = (e) => {
     setSearchQuery(e.target.value);
@@ -21,6 +21,13 @@ function SearchBar() {
     if (searchQuery.trim() !== "") {
       router.push(`/search/${encodeURIComponent(searchQuery)}`);
     }
+  };
+
+  // Khi chọn một Recent Search, cập nhật input và tìm kiếm luôn
+  const handleSelectRecentSearch = (query) => {
+    setSearchQuery(query);
+    setShowPopup(false);  // Ẩn popup sau khi chọn
+    router.push(`/search/${encodeURIComponent(query)}`); // Thực hiện tìm kiếm
   };
 
   return (
@@ -34,14 +41,17 @@ function SearchBar() {
           onChange={handleInputChange}
           onFocus={() => setShowPopup(true)}
           onBlur={() => setTimeout(() => setShowPopup(false), 200)}
-          onKeyDown={(e) => e.key === "Enter" && handleSearch()}  // Nhấn Enter để tìm kiếm
+          onKeyDown={(e) => e.key === "Enter" && handleSearch()}  
         />
       </div>
 
-      {/* Hiển thị SearchWrapper */}
       {showPopup && (
         <SearchWrapper>
-          {searchQuery ? <SearchQuery query={searchQuery} /> : <SuggestionList />}
+          {searchQuery ? (
+            <SearchQuery query={searchQuery} />
+          ) : (
+            <SuggestionList onSelectRecent={handleSelectRecentSearch} />
+          )}
         </SearchWrapper>
       )}
     </div>

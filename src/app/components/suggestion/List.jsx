@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 
@@ -11,7 +9,7 @@ const suggestionsPopularData = [
   { id: 5, title: "Minimalist desktop setup", image: "https://placekitten.com/305/200" },
 ];
 
-const SuggestionList = () => {
+const SuggestionList = ({ onSelectRecent }) => {
   const { data: session } = useSession();
   const userId = session?.user?.uid;
   const [recentSearches, setRecentSearches] = useState([]);
@@ -72,7 +70,6 @@ const SuggestionList = () => {
 
   return (
     <div>
-      {/* Recent Search */}
       <div className="flex justify-between items-center mb-3">
         <h2 className="text-lg font-bold text-black">Recent search</h2>
         {recentSearches.length > 0 && (
@@ -92,9 +89,13 @@ const SuggestionList = () => {
             <div
               key={suggestion.id}
               className="flex items-center cursor-pointer justify-between bg-gray-100 px-3 py-2 rounded-full transition hover:bg-gray-200 max-w-[300px]"
+              onClick={() => onSelectRecent(suggestion.title)} // Gọi hàm khi click
             >
               <span className="text-sm text-gray-800 mr-2">{suggestion.title}</span>
-              <button className="cursor-pointer" onClick={() => handleDeleteRecent(suggestion.id)}>
+              <button className="cursor-pointer" onClick={(e) => {
+                e.stopPropagation(); // Ngăn không cho event click vào chính nó gây tìm kiếm
+                handleDeleteRecent(suggestion.id);
+              }}>
                 ❌
               </button>
             </div>
@@ -102,7 +103,6 @@ const SuggestionList = () => {
         </div>
       )}
 
-      {/* Popular Search */}
       <h2 className="text-lg font-bold text-black mt-4 mb-3">Popular search (mock)</h2>
       <div className="flex flex-wrap gap-2">
         {suggestionsPopularData.map((suggestion) => (

@@ -66,27 +66,26 @@ export const authOptions = {
     },
     async session({ session }) {
       if (!session.user?.email) return session;
-
+    
       try {
-        const res = await fetch(`${process.env.NEXTAUTH_URL}/api/users/getId`, {
-          method: "POST",
+        const res = await fetch(`${process.env.NEXTAUTH_URL}/api/users/getId/${session.user.email}`, {
+          method: "GET",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username: session.user.name }),
         });
-
+    
         if (!res.ok) {
           console.error("Failed to fetch UID:", await res.json());
           return session;
         }
-
+    
         const data = await res.json();
         session.user.uid = data.uid; // Thêm uid vào session.user
       } catch (error) {
         console.error("Error fetching UID:", error);
       }
-
+    
       return session;
-    },
+    },    
   },
 };
 

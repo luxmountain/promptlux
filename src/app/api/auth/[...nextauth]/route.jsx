@@ -68,24 +68,21 @@ export const authOptions = {
       if (!session.user?.email) return session;
     
       try {
-        const res = await fetch(`${process.env.NEXTAUTH_URL}/api/users/getId/${session.user.email}`, {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
+        // Fetch the user from the database based on the email
+        const user = await prisma.user.findUnique({
+          where: { email: session.user.email },
         });
     
-        if (!res.ok) {
-          console.error("Failed to fetch UID:", await res.json());
-          return session;
+        if (user) {
+          session.user.uid = user.uid; // Add the UID to the session
+          session.user.name = user.username; // Override the name with the username
         }
-    
-        const data = await res.json();
-        session.user.uid = data.uid; // Thêm uid vào session.user
       } catch (error) {
-        console.error("Error fetching UID:", error);
+        console.error("Error fetching user details:", error);
       }
     
       return session;
-    },    
+    },
   },
 };
 

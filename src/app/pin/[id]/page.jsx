@@ -117,6 +117,30 @@ function PostDetail() {
           <p className="text-gray-700">{post.prompt_used}</p>
         </div>
         )}
+        <div className="grid justify-items-center text-center">
+          <h4 className="text-lg font-semibold">Date</h4>
+          <p className="text-gray-700">
+            {post.edited_at ? `Edited At: ${new Date(post.edited_at).toLocaleString()}` 
+                            : `Created At: ${new Date(post.created_at).toLocaleString()}`}
+          </p>
+        </div>
+        {post?.post_tags?.length > 0 && (
+          <div className="grid justify-items-center text-center mt-4">
+            <h4 className="text-lg font-semibold">Tags</h4>
+            <div className="flex flex-wrap justify-center gap-2">
+              {post.post_tags.map((tag) => (
+                <span 
+                  key={tag.tid} 
+                  className="bg-gray-200 text-gray-800 text-sm font-medium px-3 py-1 rounded-full"
+                >
+                  {tag.tag.tag_content}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+
       <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
     </>
   );

@@ -13,7 +13,16 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
   try {
     const post = await prisma.post.findUnique({
       where: { pid: postId },
-      include: { user: true, comments: true, likes: true, seen: true, post_tags: true, model: true },
+      include: { 
+        user: true, 
+        comments: true, 
+        likes: true, 
+        seen: true, 
+        post_tags: { 
+          include: { tag: true }
+        }, 
+        model: true
+      },
     });
 
     if (!post) {

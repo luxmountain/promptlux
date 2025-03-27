@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";  
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react"; // ✅ Import useSession
 import { InputBase } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import SearchWrapper from "../wrapper/Search";
@@ -11,23 +12,43 @@ import SearchQuery from "./Query";
 function SearchBar() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showPopup, setShowPopup] = useState(false);
+  const { data: session } = useSession();
   const router = useRouter();
+  const userId = session?.user?.uid;
 
   const handleInputChange = (e) => {
     setSearchQuery(e.target.value);
   };
 
-  const handleSearch = () => {
-    if (searchQuery.trim() !== "") {
-      router.push(`/search/${encodeURIComponent(searchQuery)}`);
+  const saveSearchQuery = async (query) => {
+    if (!userId) return;
+
+    try {
+      await fetch("/api/search/recent", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ uid: userId, keyword: query }),
+      });
+    } catch (error) {
+      console.error("Failed to save search query:", error);
     }
   };
 
-  // Khi chọn một Recent Search, cập nhật input và tìm kiếm luôn
-  const handleSelectRecentSearch = (query) => {
+  const handleSearch = () => {
+    if (searchQuery.trim() !== "") {
+      saveSearchQuery(searchQuery);
+      router.push(`/search/${encodeURIComponent(searchQuery)}`);
+      setShowPopup(false);
+    }
+  };
+
+  const handleSelectSearchQuery = (query) => {
     setSearchQuery(query);
-    setShowPopup(false);  // Ẩn popup sau khi chọn
-    router.push(`/search/${encodeURIComponent(query)}`); // Thực hiện tìm kiếm
+    saveSearchQuery(query);
+    setShowPopup(false);
+    router.push(`/search/${encodeURIComponent(query)}`);
   };
 
   return (
@@ -41,16 +62,16 @@ function SearchBar() {
           onChange={handleInputChange}
           onFocus={() => setShowPopup(true)}
           onBlur={() => setTimeout(() => setShowPopup(false), 200)}
-          onKeyDown={(e) => e.key === "Enter" && handleSearch()}  
+          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
         />
       </div>
 
       {showPopup && (
         <SearchWrapper>
           {searchQuery ? (
-            <SearchQuery query={searchQuery} />
+            <SearchQuery query={searchQuery} onSelectQuery={handleSelectSearchQuery} />
           ) : (
-            <SuggestionList onSelectRecent={handleSelectRecentSearch} />
+            <SuggestionList onSelectRecent={handleSelectSearchQuery} />
           )}
         </SearchWrapper>
       )}

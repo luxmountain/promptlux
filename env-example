@@ -1,0 +1,21 @@
+GITHUB_ID       = Ov23lib08Vw0yzBJrceL
+GITHUB_SECRET   = 68c55951b817e8b7b8d61920fe81d18f20b7014a
+NEXTAUTH_URL    = http://localhost:3000
+
+
+# This was inserted by `prisma init`:
+# Environment variables declared in this file are automatically made available to Prisma.
+# See the documentation for more detail: https://pris.ly/d/prisma-schema#accessing-environment-variables-from-the-schema
+
+# Prisma supports the native connection string format for PostgreSQL, MySQL, SQLite, SQL Server, MongoDB and CockroachDB.
+# See the documentation for all the connection string options: https://pris.ly/d/connection-strings
+
+DATABASE_URL    = "postgresql://postgres:123@localhost:5432/promptLux"
+
+IMGUR_ID        = 9e07424818a32d1
+IMGUR_SECRET_ID = 5f9ba476447ee47cb3b936382f49a808e8726fa3
+JWT_SECRET=b94c7f1c12f21e3d23b21c4a3c92f4b32a8e4b6a5f4e7c12b3e2f1c3d9a6b7e8
+
+ALGOLIA_APP_ID=YourAppID
+ALGOLIA_SEARCH_KEY=YourSearchOnlyAPIKey
+ALGOLIA_INDEX_NAME=search_suggestions

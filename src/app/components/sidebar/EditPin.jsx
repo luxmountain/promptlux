@@ -1,42 +1,67 @@
 import React, { useState, useEffect } from "react";
+import EditTag from "../suggestion/EditTag";
 
 function EditPinSidebar({ isOpen, onClose, pid }) {
   const [isVisible, setIsVisible] = useState(isOpen);
-
-  useEffect(() => {
-    if (isOpen) {
-      setIsVisible(true);
-    } else {
-      setTimeout(() => setIsVisible(false), 300); // Delay để hoàn tất animation trước khi ẩn
-    }
-  }, [isOpen]);
-
-  // State lưu trữ dữ liệu nhập vào
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [promptUsed, setPromptUsed] = useState("");
-  const [tags, setTags] = useState([]);
+  const [selectedTags, setSelectedTags] = useState([]); // Thay đổi từ tags sang selectedTags
   const [isSaveClicked, setIsSaveClicked] = useState(false);
+  
+  useEffect(() => {
+    if (isOpen) {
+      setIsVisible(true);
+      fetchPinDetails(); // Gọi API lấy dữ liệu khi mở sidebar
+    } else {
+      setTimeout(() => setIsVisible(false), 300);
+    }
+  }, [isOpen]);
 
-  // Hàm xử lý thêm tag
-  const handleAddTag = (e) => {
-    if (e.key === "Enter" && e.target.value.trim() !== "") {
-      setTags([...tags, e.target.value.trim()]);
-      e.target.value = "";
+  // Hàm lấy dữ liệu hiện tại của pin
+  const fetchPinDetails = async () => {
+    try {
+      const response = await fetch(`/api/pins/${pid}`);
+      if (!response.ok) throw new Error("Failed to fetch pin details");
+
+      const data = await response.json();
+      setTitle(data.title || "");
+      setDescription(data.description || "");
+      setPromptUsed(data.prompt_used || "");
+      setSelectedTags(data.post_tags?.map(tag => tag.tag.tag_content) || []);
+    } catch (error) {
+      console.error("Error fetching pin details:", error);
     }
   };
 
-  // Hàm xử lý xóa tag
-  const handleRemoveTag = (tagToRemove) => {
-    setTags(tags.filter((tag) => tag !== tagToRemove));
-  };
-
-  // Xử lý lưu
-  const handleSaveClick = () => {
+  // Hàm xử lý lưu chỉnh sửa
+  const handleSaveClick = async () => {
     setIsSaveClicked(true);
-    setTimeout(() => {
+
+    try {
+      const response = await fetch(`/api/pins/${pid}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title,
+          description,
+          prompt_used: promptUsed,
+          tags: selectedTags, // Gửi danh sách tag mới
+        }),
+      });
+
+      if (!response.ok) throw new Error("Failed to update pin");
+
+      console.log("Pin updated successfully!");
+      setTimeout(() => {
+        setIsSaveClicked(false);
+        onClose(); // Đóng sidebar sau khi cập nhật thành công
+      }, 1500);
+      window.location.reload();
+    } catch (error) {
+      console.error("Error updating pin:", error);
       setIsSaveClicked(false);
-    }, 2000);
+    }
   };
 
   return isVisible ? (
@@ -48,14 +73,12 @@ function EditPinSidebar({ isOpen, onClose, pid }) {
     >
       {/* Overlay làm mờ nền */}
       <div
-        className={`fixed inset-0 bg-black transition-opacity duration-300 ${
-          isOpen ? "opacity-50" : "opacity-0"
-        }`}
+        className="fixed inset-0 bg-black opacity-50"
         style={{ zIndex: 50 }}
         onClick={onClose}
       ></div>
 
-      {/* Sidebar với animation kéo từ phải vào */}
+      {/* Sidebar */}
       <div
         className={`fixed top-0 right-0 w-96 h-full bg-white shadow-lg p-6 transition-transform duration-300 ease-in-out ${
           isOpen ? "translate-x-0" : "translate-x-full"
@@ -64,87 +87,55 @@ function EditPinSidebar({ isOpen, onClose, pid }) {
       >
         <h2 className="text-xl font-semibold mb-4">Edit Pin</h2>
 
-        {/* Nội dung chỉnh sửa */}
-        <div className="flex flex-col gap-4 pb-16">
-          {/* Title */}
-          <div>
-            <label className="font-semibold">Title</label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Add a title"
-              className="w-full border border-gray-300 rounded-lg p-2 mt-1 focus:ring-2 focus:ring-blue-300"
-              required
-            />
-          </div>
-
-          {/* Description */}
-          <div>
-            <label className="font-semibold">Description</label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Add a detailed description"
-              className="resize-none w-full border rounded-lg border-gray-300 p-2 mt-1 focus:ring-2 focus:ring-blue-300"
-              rows={3}
-            />
-          </div>
-
-          {/* Prompt Used */}
-          <div>
-            <label className="font-semibold">Prompt Used</label>
-            <textarea
-              value={promptUsed}
-              onChange={(e) => setPromptUsed(e.target.value)}
-              placeholder="Enter prompt used"
-              className="resize-none w-full border rounded-lg p-2 mt-1 focus:ring-2 border-gray-300 focus:ring-blue-300"
-              rows={3}
-            />
-          </div>
-
-          {/* Tags */}
-          <div>
-            <label className="font-semibold">Tags</label>
-            <div className="flex flex-wrap gap-2 border border-gray-300 rounded-lg p-2 mt-1">
-              {tags.map((tag, index) => (
-                <span
-                  key={index}
-                  className="bg-blue-100 text-blue-600 px-2 py-1 rounded-full flex items-center"
-                >
-                  {tag}
-                  <button
-                    className="ml-2 text-red-500 hover:text-red-700"
-                    onClick={() => handleRemoveTag(tag)}
-                  >
-                    ×
-                  </button>
-                </span>
-              ))}
-              <input
-                type="text"
-                placeholder="Press Enter to add tags"
-                onKeyDown={handleAddTag}
-                className="flex-1 outline-none"
-              />
-            </div>
-          </div>
+        {/* Title */}
+        <div>
+          <label className="font-semibold">Title</label>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="w-full border border-gray-300 rounded-lg p-2 mt-1 focus:ring-2 focus:ring-blue-300"
+            required
+          />
         </div>
 
-        {/* Buttons (Fixed bottom-right) */}
+        {/* Description */}
+        <div>
+          <label className="font-semibold">Description</label>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="resize-none w-full border rounded-lg border-gray-300 p-2 mt-1 focus:ring-2 focus:ring-blue-300"
+            rows={3}
+          />
+        </div>
+
+        {/* Prompt Used */}
+        <div>
+          <label className="font-semibold">Prompt Used</label>
+          <textarea
+            value={promptUsed}
+            onChange={(e) => setPromptUsed(e.target.value)}
+            className="resize-none w-full border rounded-lg p-2 mt-1 focus:ring-2 border-gray-300 focus:ring-blue-300"
+            rows={3}
+          />
+        </div>
+
+        {/* Tags (Dùng lại component Tag từ Form) */}
+        {/* <div>
+          <label className="font-semibold">Tags</label>
+          <EditTag selectedTags={selectedTags} setSelectedTags={setSelectedTags} />
+        </div> */}
+
+        {/* Buttons */}
         <div className="absolute bottom-8 right-4 flex space-x-4">
-          {/* Cancel Button */}
           <button
-            onClick={() => {
-              onClose();
-              setTimeout(() => setIsVisible(false), 300);
-            }}
+            onClick={onClose}
             className="px-4 py-2 border border-gray-300 rounded-full text-gray-600 hover:bg-gray-100 transition"
           >
             Cancel
           </button>
 
-          {/* Save Button */}
           <button
             onClick={handleSaveClick}
             className={`px-4 py-2 rounded-full transition ${

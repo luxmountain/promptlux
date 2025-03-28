@@ -10,14 +10,14 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   }
 
   try {
-    const { description, prompt_used, image_url } = await req.json();
+    const { title, description, prompt_used } = await req.json();
 
     const updatedPost = await prisma.post.update({
       where: { pid: postId },
       data: {
+        title,
         description,
         prompt_used,
-        image_url,
         edited_at: new Date(),
       },
     });

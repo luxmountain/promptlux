@@ -1,20 +1,23 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 const menuItems = [
   { id: "profile", label: "Edit profile", url: "/settings/" },
   { id: "account", label: "Account management", url: "/settings/account-settings" },
-  // { id: "privacy", label: "Privacy settings", url: "/settings/privacy" },
-  // { id: "notifications", label: "Notification settings", url: "/settings/notifications" },
 ];
 
 function Menu({ active, setActive }) {
   const router = useRouter();
 
+  // Cập nhật sessionStorage khi menu thay đổi
+  useEffect(() => {
+    sessionStorage.setItem("activeMenu", active);
+  }, [active]);
+
   const handleNavigation = (id, url) => {
     setActive(id);
-    router.push(url); // Chuyển sang trang tương ứng
+    router.push(url); // Chuyển trang
   };
 
   return (

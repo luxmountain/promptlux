@@ -1,8 +1,8 @@
 "use client";
-import { React, useState, useRef } from "react";
-import Menu from "../components/edit-profile/menu";
+import React, { useState, useRef } from "react";
 import EditActions from "../components/edit-profile/edit-actions";
 import EditConfirm from "../components/edit-profile/edit-confirm";
+import SettingMenu from "../components/wrapper/SettingMenu";
 
 function EditProfile() {
   const [avatar, setAvatar] = useState("https://mui.com/static/images/avatar/1.jpg");
@@ -24,100 +24,8 @@ function EditProfile() {
 
   const fileInputRef = useRef(null);
 
-  const handleSelectPhoto = () => {
-    fileInputRef.current.click(); 
-  };
-
-
-  const checkErrors = () => {
-    setHasError(
-      !!errorFirstName || !!errorSurName || !!errorIntroduce || !!errorWebsite || !!errorUserName
-    );
-  };
-
-  const handleFirstNameChange = (e) => {
-    const value = e.target.value;
-    setFirstName(value);
-    setIsModified(true);
-    if (value.length > 30) {
-      setErrorFirstName("Please enter up to 30 characters.");
-    } else if (value.trim() === "") {
-      setErrorFirstName("Your profile needs to have a name.");
-    } else {
-      setErrorFirstName("");
-    }
-    checkErrors();
-  };
-
-  const handleSurNameChange = (e) => {
-    const value = e.target.value;
-    setSurName(value);
-    setIsModified(true);
-    if (value.length > 30) {
-      setErrorSurname("Please enter up to 30 characters.");
-    } else {
-      setErrorSurname("");
-    }
-    checkErrors();
-  };
-
-  const handleIntroduceChange = (e) => {
-    const value = e.target.value;
-    setIntroduce(value);
-    setIsModified(true);
-    if (value.length > 500) {
-      setErrorIntroduce("Please enter up to 500 characters.");
-    } else {
-      setErrorIntroduce("");
-    }
-    checkErrors();
-  };
-
-  const handleWebsiteChange = (e) => {
-    const value = e.target.value;
-    setWebsite(value);
-    setIsModified(true);
-    const urlRegex = /^https:\/\/[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}.*$/; // Kiểm tra URL hợp lệ
+  const handleReset = () => setIsOpenConfirm(true);
   
-    if (!urlRegex.test(value)) {
-      setErrorWebsite("Not a valid URL");
-    } else {
-      setErrorWebsite("");
-    }
-    checkErrors();
-  };
-
-  const handleUserNameChange = (e) => {
-    const value = e.target.value;
-    setUserName(value);
-    setIsModified(true);
-    if (value.trim() === "") {
-      setErrorUserName("Your profile needs a username. Choose it carefully so that others can find you easily.");
-    } else {
-      setErrorUserName("");
-    }
-    checkErrors();
-  };
-
-  const handleAvatarChange = () => {
-    setIsOpenAvatarChange(true);
-  };
-
-  const confirmAvatarChange = (file) => {
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setAvatar(e.target.result); // Cập nhật avatar bằng URL base64
-        setIsOpenAvatarChange(false); // Đóng modal sau khi chọn ảnh
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleReset = () => {
-    setIsOpenConfirm(true);
-  };
-
   const confirmReset = () => {
     setFirstName("Vu");
     setSurName("Nguyen");
@@ -136,42 +44,24 @@ function EditProfile() {
     setIsOpenConfirm(false);
   };
 
-  const [active, setActive] = useState("profile"); // Lưu trạng thái nút đang chọn
-
   return (
-    <div className="flex flex-col h-screen overflow-hidden">
-      {/* Div trên - màu đỏ, có hai div con nằm ngang */}
-      <div className="flex flex-grow overflow-y-auto pl-8 pt-8">
-        {/* Menu bên trái */}
-        <Menu active={active} setActive={setActive} />
+    <SettingMenu>
+      {/* Chức năng bên phải */}
+      <EditActions
+        fileInputRef={fileInputRef}
+        firstName={firstName}
+        surName={surName}
+        userName={userName}
+        introduce={introduce}
+        website={website}
+        errorFirstName={errorFirstName}
+        errorSurName={errorSurName}
+        errorIntroduce={errorIntroduce}
+        errorWebsite={errorWebsite}
+        errorUserName={errorUserName}
+      />
 
-        {/* Chức năng bên phải */}
-        <EditActions
-          isOpenAvatarChange={isOpenAvatarChange}
-          fileInputRef={fileInputRef}
-          firstName={firstName}
-          surName={surName}
-          userName={userName}
-          introduce={introduce}
-          website={website}
-          errorFirstName={errorFirstName}
-          errorSurName={errorSurName}
-          errorIntroduce={errorIntroduce}
-          errorWebsite={errorWebsite}
-          errorUserName={errorUserName}
-          confirmAvatarChange={confirmAvatarChange}
-          handleAvatarChange={handleAvatarChange}
-          handleSelectPhoto={handleSelectPhoto}
-          handleFirstNameChange={handleFirstNameChange}
-          handleSurNameChange={handleSurNameChange}
-          handleIntroduceChange={handleIntroduceChange}
-          handleWebsiteChange={handleWebsiteChange}
-          handleUserNameChange={handleUserNameChange}
-          setIsOpenAvatarChange={setIsOpenAvatarChange}
-        />
-      </div>
-
-      {/* Div dưới */}
+      {/* Xác nhận khi reset */}
       <EditConfirm
         isModified={isModified}
         isOpenConfirm={isOpenConfirm}
@@ -180,7 +70,7 @@ function EditProfile() {
         confirmReset={confirmReset}
         setIsOpenConfirm={setIsOpenConfirm}
       />
-    </div>
+    </SettingMenu>
   );
 }
 

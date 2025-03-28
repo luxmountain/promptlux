@@ -1,9 +1,14 @@
-import React from 'react'
+"use client";
+import React from "react";
+import SettingMenu from "../../components/wrapper/SettingMenu";
 
 function AccountSettings() {
   return (
-    <div>AccountSettings</div>
-  )
+    <SettingMenu>
+      <h2 className="text-xl font-semibold">Account Settings</h2>
+      <p className="text-gray-600">Chọn một mục từ menu để chỉnh sửa.</p>
+    </SettingMenu>
+  );
 }
 
-export default AccountSettings
+export default AccountSettings;

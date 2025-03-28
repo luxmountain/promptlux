@@ -1,24 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 
-const suggestionsPopularData = [
-  { id: 1, title: "PC desktop wallpaper", image: "https://placekitten.com/301/200" },
-  { id: 2, title: "Web layout design", image: "https://placekitten.com/302/200" },
-  { id: 3, title: "Gaming computer room", image: "https://placekitten.com/303/200" },
-  { id: 4, title: "Study planner printable", image: "https://placekitten.com/304/200" },
-  { id: 5, title: "Minimalist desktop setup", image: "https://placekitten.com/305/200" },
-];
-
 const SuggestionList = ({ onSelectRecent }) => {
   const { data: session } = useSession();
   const userId = session?.user?.uid;
   const [recentSearches, setRecentSearches] = useState([]);
+  const [popularSearches, setPopularSearches] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (userId) {
       fetchRecentSearches();
     }
+    fetchPopularSearches();
   }, [userId]);
 
   const fetchRecentSearches = async () => {
@@ -35,6 +29,20 @@ const SuggestionList = ({ onSelectRecent }) => {
       console.error("Error fetching recent searches:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchPopularSearches = async () => {
+    try {
+      const res = await fetch(`/api/search/recent/getPopular`);
+      const data = await res.json();
+      if (res.ok) {
+        setPopularSearches(data.data);
+      } else {
+        console.error("Failed to fetch popular searches:", data.message);
+      }
+    } catch (error) {
+      console.error("Error fetching popular searches:", error);
     }
   };
 
@@ -89,11 +97,11 @@ const SuggestionList = ({ onSelectRecent }) => {
             <div
               key={suggestion.id}
               className="flex items-center cursor-pointer justify-between bg-gray-100 px-3 py-2 rounded-full transition hover:bg-gray-200 max-w-[300px]"
-              onClick={() => onSelectRecent(suggestion.title)} // Gọi hàm khi click
+              onClick={() => onSelectRecent(suggestion.title)}
             >
               <span className="text-sm text-gray-800 mr-2">{suggestion.title}</span>
               <button className="cursor-pointer" onClick={(e) => {
-                e.stopPropagation(); // Ngăn không cho event click vào chính nó gây tìm kiếm
+                e.stopPropagation();
                 handleDeleteRecent(suggestion.id);
               }}>
                 ❌
@@ -103,19 +111,19 @@ const SuggestionList = ({ onSelectRecent }) => {
         </div>
       )}
 
-      <h2 className="text-lg font-bold text-black mt-4 mb-3">Popular search (mock)</h2>
+      <h2 className="text-lg font-bold text-black mt-4 mb-3">Popular search</h2>
       <div className="flex flex-wrap gap-2">
-        {suggestionsPopularData.map((suggestion) => (
+        {popularSearches.map((suggestion, index) => (
           <div
-            key={suggestion.id}
+            key={index}
             className="flex items-center bg-gray-100 p-2 rounded-lg w-[300px] h-[100px] transition hover:bg-gray-200"
           >
             <img
-              src={suggestion.image}
-              alt={suggestion.title}
+              src={suggestion.image_url || "https://via.placeholder.com/80"}
+              alt={suggestion.keyword}
               className="w-20 h-20 rounded-lg object-cover mr-3"
             />
-            <span className="text-sm font-semibold text-gray-800">{suggestion.title}</span>
+            <span className="text-sm font-semibold text-gray-800">{suggestion.keyword}</span>
           </div>
         ))}
       </div>

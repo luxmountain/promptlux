@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { AppBar, Toolbar, IconButton, Avatar } from "@mui/material";
 import app from "../Shared/firebaseConfig";
 import { doc, setDoc, getFirestore } from "firebase/firestore";
@@ -17,6 +17,7 @@ function Header() {
 
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
+  const [isPopupOpen, setIsPopupOpen] = useState(false); // State for popup visibility
 
   useEffect(() => {
     saveUserInfo();
@@ -61,6 +62,17 @@ function Header() {
     setIsLoginModalOpen(false); // Ensure Login Modal is closed
   };
 
+  // Toggle popup visibility
+  const togglePopup = () => {
+    setIsPopupOpen((prev) => !prev);
+  };
+
+  // Handle logout
+  const handleLogout = async () => {
+    await signOut();
+    setIsPopupOpen(false); // Close popup after logout
+  };
+
   return (
     <AppBar position="static" color="default" sx={{ padding: "10px", boxShadow: "none", backgroundColor: "white" }}>
       <Toolbar className="flex justify-between gap-8">
@@ -86,16 +98,58 @@ function Header() {
         </div>
 
         {/* Search Bar */}
-        <SearchBar/>
+        <SearchBar />
 
         {/* User Profile / Login */}
         {session?.user ? (
-          <Avatar
-            src={session.user.image || "/default-avatar.png"}
-            alt="user-avatar"
-            className="cursor-pointer"
-            onClick={() => router.push(`/${session?.user?.name}`)}
-          />
+          <div className="relative flex items-center gap-2">
+            <Avatar
+              src={session.user.image || "/default-avatar.png"}
+              alt="user-avatar"
+              className="cursor-pointer"
+              onClick={() => router.push(`/${session?.user?.name}`)}
+            />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20px"
+              height="20px"
+              viewBox="0 0 24 24"
+              fill="none"
+              className="cursor-pointer"
+              onClick={togglePopup}
+            >
+              <path
+                d="M7 10L12 15L17 10"
+                stroke="#000000"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+
+            {/* Popup for Settings and Logout */}
+            {isPopupOpen && (
+              <div className="absolute top-12 right-0 bg-white shadow-lg rounded-lg w-40 z-50">
+                <ul className="flex flex-col">
+                  <li
+                    className="p-2 hover:bg-gray-100 cursor-pointer"
+                    onClick={() => {
+                      router.push("/settings");
+                      setIsPopupOpen(false);
+                    }}
+                  >
+                    Settings
+                  </li>
+                  <li
+                    className="p-2 hover:bg-gray-100 cursor-pointer"
+                    onClick={handleLogout}
+                  >
+                    Logout
+                  </li>
+                </ul>
+              </div>
+            )}
+          </div>
         ) : (
           <button
             className="rounded-full border border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-black hover:text-white text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-32"

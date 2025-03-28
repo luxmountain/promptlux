@@ -99,13 +99,7 @@ function UserInfo({ userInfo, onTabChange }) {
           Created
         </button>
         {session?.user?.uid === userInfo.uid ? (
-          // Nếu là chính chủ thì hiện nút Logout, ẩn Follow
-          <button
-            className="bg-gray-200 p-2 px-3 font-semibold mt-5 rounded-full cursor-pointer"
-            onClick={onLogoutClick}
-          >
-            Logout
-          </button>
+          <></>
         ) : (
           // Nếu không phải chính chủ thì hiện Follow, ẩn Logout
           <FollowButton followingUserId={session?.user?.uid} followedUserId={userInfo.uid} />

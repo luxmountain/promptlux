@@ -1,8 +1,8 @@
 "use client";
 import { React, useState, useRef } from "react";
-import Menu from "./menu";
-import EditActions from "./edit-actions";
-import EditConfirm from "./edit-confirm";
+import Menu from "../components/edit-profile/menu";
+import EditActions from "../components/edit-profile/edit-actions";
+import EditConfirm from "../components/edit-profile/edit-confirm";
 
 function EditProfile() {
   const [avatar, setAvatar] = useState("https://mui.com/static/images/avatar/1.jpg");

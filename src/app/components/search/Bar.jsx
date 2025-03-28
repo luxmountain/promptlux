@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react"; // ✅ Import useSession
 import { InputBase } from "@mui/material";
@@ -20,6 +20,7 @@ function SearchBar() {
     setSearchQuery(e.target.value);
   };
 
+  // ✅ Save search query in the user's recent searches
   const saveSearchQuery = async (query) => {
     if (!userId) return;
 
@@ -36,23 +37,43 @@ function SearchBar() {
     }
   };
 
-  const handleSearch = () => {
+  // ✅ Save search query in the popular searches database
+  const savePopularSearch = async (query) => {
+    try {
+      await fetch("/api/search/popular", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ keyword: query }),
+      });
+    } catch (error) {
+      console.error("Failed to save popular search:", error);
+    }
+  };
+
+  // ✅ Handle search when user presses Enter
+  const handleSearch = async () => {
     if (searchQuery.trim() !== "") {
-      saveSearchQuery(searchQuery);
+      await saveSearchQuery(searchQuery);  // Save in recent searches
+      await savePopularSearch(searchQuery); // Save in popular searches
       router.push(`/search/${encodeURIComponent(searchQuery)}`);
       setShowPopup(false);
     }
   };
 
-  const handleSelectSearchQuery = (query) => {
+  // ✅ Handle selecting a suggestion
+  const handleSelectSearchQuery = async (query) => {
     setSearchQuery(query);
-    saveSearchQuery(query);
+    await saveSearchQuery(query);
+    await savePopularSearch(query);
     setShowPopup(false);
     router.push(`/search/${encodeURIComponent(query)}`);
   };
 
   return (
     <div className="relative w-full">
+      {/* Search Bar */}
       <div className="relative flex bg-gray-200 rounded-full p-2 items-center w-full pr-4">
         <SearchIcon className="text-gray-500 cursor-pointer" onClick={handleSearch} />
         <InputBase
@@ -66,6 +87,7 @@ function SearchBar() {
         />
       </div>
 
+      {/* Search Suggestions & Popular Searches */}
       {showPopup && (
         <SearchWrapper>
           {searchQuery ? (

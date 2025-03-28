@@ -11,7 +11,7 @@ function SearchPage() {
 
   useEffect(() => {
     if (q) {
-      fetch(`/api/search?q=${encodeURIComponent(q)}`)
+      fetch(`/api/search?q=${q}`)
         .then((res) => res.json())
         .then((data) => setResults(data))
         .catch((err) => console.error("Search error:", err));

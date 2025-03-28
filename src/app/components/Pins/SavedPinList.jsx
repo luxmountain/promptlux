@@ -27,7 +27,7 @@ function SavedPinList({ uid }) {
 
   return (
     <>
-      <h2 class="p-4">Saved Pins</h2>
+      <h2 className="p-4">Saved Pins</h2>
       <div className="columns-2 md:columns-4 lg:columns-6 gap-4 p-4">
         {savedPins.length > 0 ? (
           savedPins.map((savedPin) => (

@@ -3,11 +3,11 @@
 import React, { useState, useEffect } from "react";
 import { signIn } from "next-auth/react";
 import ModalWrapper from "../wrapper/ModalAuth";
-
+import { useRouter } from "next/navigation"; 
 const LoginModal = ({ isOpen, onClose, onSwitch }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
+  const router = useRouter();
   // Chặn scroll khi modal mở
   useEffect(() => {
     if (isOpen) {
@@ -35,7 +35,8 @@ const LoginModal = ({ isOpen, onClose, onSwitch }) => {
       if (result.error) {
         alert("Invalid email or password");
       } else {
-        onClose(); // Đóng modal sau khi đăng nhập thành công
+        onClose();
+        router.push("/");
       }
     } catch (error) {
       console.error("Login error:", error);

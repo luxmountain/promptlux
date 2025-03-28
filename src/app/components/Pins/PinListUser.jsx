@@ -31,7 +31,7 @@ function PinListUser({ uid }) {
 
   return (
     <>
-      <h2 class="p-4">Created Pins</h2>
+      <h2 className="p-4">Created Pins</h2>
       <div className="columns-2 md:columns-4 lg:columns-6 gap-4 p-4">
         {pins.map((pin) => (
           <PinItem key={pin.id} pin={pin} />

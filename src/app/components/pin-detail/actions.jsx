@@ -4,6 +4,7 @@ import ShareButton from "../action/ShareButton";
 import SaveButton from "../action/SaveButton";
 import LikePostList from "../popup/LikePostList"; // Import danh sách người thích
 import ListWrapper from "../wrapper/List"; // Wrapper for popups
+import CreatedUserActions from "./createdActions";
 
 const PostActions = ({ postOwnerId, postId, userId, imageUrl }) => {
   const [isHeartClicked, setIsHeartClicked] = useState(false);
@@ -165,6 +166,7 @@ const PostActions = ({ postOwnerId, postId, userId, imageUrl }) => {
       </div>
 
       {/* Right Section */}
+      <CreatedUserActions postOwnerId={postOwnerId} pid={postId} uid={userId} />
       <SaveButton pid={postId} uid={userId} postOwnerId={postOwnerId} />
 
       {/* Popup danh sách người thích bài viết */}

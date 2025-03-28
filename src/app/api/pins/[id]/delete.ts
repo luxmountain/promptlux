@@ -10,6 +10,17 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
   }
 
   try {
+    // Step 1: Delete all related records
+    await prisma.like.deleteMany({ where: { pid: postId } });
+    await prisma.seen.deleteMany({ where: { pid: postId } });
+    await prisma.commentlike.deleteMany({
+      where: { Comment: { pid: postId } },
+    });
+    await prisma.comment.deleteMany({ where: { pid: postId } });
+    await prisma.post_tags.deleteMany({ where: { pid: postId } });
+    await prisma.savedPost.deleteMany({ where: { pid: postId } });
+
+    // Step 2: Now delete the post
     await prisma.post.delete({
       where: { pid: postId },
     });

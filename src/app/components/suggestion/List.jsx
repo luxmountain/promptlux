@@ -78,6 +78,7 @@ const SuggestionList = ({ onSelectRecent }) => {
 
   return (
     <div>
+      {/* Recent Search */}
       <div className="flex justify-between items-center mb-3">
         <h2 className="text-lg font-bold text-black">Recent search</h2>
         {recentSearches.length > 0 && (
@@ -111,12 +112,14 @@ const SuggestionList = ({ onSelectRecent }) => {
         </div>
       )}
 
+      {/* Popular Search */}
       <h2 className="text-lg font-bold text-black mt-4 mb-3">Popular search</h2>
       <div className="flex flex-wrap gap-2">
         {popularSearches.map((suggestion, index) => (
           <div
             key={index}
-            className="flex items-center bg-gray-100 p-2 rounded-lg w-[300px] h-[100px] transition hover:bg-gray-200"
+            className="flex items-center bg-gray-100 p-2 rounded-lg w-[300px] h-[100px] transition hover:bg-gray-200 cursor-pointer"
+            onClick={() => onSelectRecent(suggestion.keyword)}  // ✅ Gọi onSelectRecent khi click vào
           >
             <img
               src={suggestion.image_url || "https://via.placeholder.com/80"}
